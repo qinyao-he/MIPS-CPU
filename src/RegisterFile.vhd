@@ -4,7 +4,7 @@
 --
 -- Create Date:    23:26:23 11/18/2015
 -- Design Name:
--- Module Name:    RegisterFile - Behavioral
+-- Module Name:    RegisterFile - RTL
 -- Project Name:
 -- Target Devices:
 -- Tool versions:

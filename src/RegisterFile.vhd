@@ -4,7 +4,7 @@
 --
 -- Create Date:    23:26:23 11/18/2015
 -- Design Name:
--- Module Name:    RegisterFile - Behavioral
+-- Module Name:    RegisterFile - RTL
 -- Project Name:
 -- Target Devices:
 -- Tool versions:
@@ -76,9 +76,10 @@ begin
 	--ReadDataA <= regs(to_integer(unsigned(ReadRegA)));
 	--ReadDataB <= regs(to_integer(unsigned(ReadRegB)));
 
-	process (Clock) begin
+	process (Clock)
+	begin
 		if rising_edge(Clock) then
-			if Reset = '0' then
+			if Reset = '1' then
 				regs <= (others => (others => '0'));
 			elsif WriteEN = '1' then
 				regs(to_integer(unsigned(WriteReg))) <= WriteData;

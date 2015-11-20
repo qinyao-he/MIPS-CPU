@@ -31,8 +31,7 @@ use ieee.std_logic_arith.all;
 --use UNISIM.VComponents.all;
 
 entity Extender is
-	port (ExtendType : in  std_logic_vector (2 downto 0);
-		Instruction : in  std_logic_vector (15 downto 0);
+	port (Instruction : in  std_logic_vector (15 downto 0);
 		Output : out  std_logic_vector (15 downto 0));
 end Extender;
 

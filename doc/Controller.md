@@ -8,11 +8,13 @@
 ### TType
 用于处理CMP和SLT，两条需要写T寄存器的指令，选择两个操作数在相等和大于的情况下T等于1还是0
 
-### TSelect
-用于控制一个选择器。该选择器用来选择结果是从ALU的输出结果，还是T产生的输出结果。
-
-### EXEResultSelect
-选择EXE的执行结果来自于ALU还是来自某一个寄存器。用于完成move类指令。
+### EXEResultSelect(1:0)
+选择EXE的执行结果来自于ALU还是来自某一个寄存器，或是T的结果。可以用于完成move类指令。
+用于驱动一个四路选择器。
+* 00 选择来自ALU的计算结果
+* 01 选择来自T的计算结果
+* 10 选择来自RegDataA
+* 11 选择来自RegDataB
 
 ### RegWrite
 等于1时表示需要写一个寄存器。
@@ -23,7 +25,7 @@
 ### MemWrite
 等于1表示需要写内存。
 
-### ExtendType(4:0)
+### ExtendType(3:0)
 用于给Extender作为参数，表示使用什么方法进行立即数的扩展。
 
 ### BranchType(1:0)

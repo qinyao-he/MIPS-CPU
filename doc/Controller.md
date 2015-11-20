@@ -1,47 +1,52 @@
 # Controller 控制信号设计
 
-## TType
+## 输入
+### Instruction(15:0)
+15位的指令。
+
+## 输出
+### TType
 用于处理CMP和SLT，两条需要写T寄存器的指令，选择两个操作数在相等和大于的情况下T等于1还是0
 
-## TSelect
+### TSelect
 用于控制一个选择器。该选择器用来选择结果是从ALU的输出结果，还是T产生的输出结果。
 
-## EXEResultSelect
+### EXEResultSelect
 选择EXE的执行结果来自于ALU还是来自某一个寄存器。用于完成move类指令。
 
-## RegWrite
+### RegWrite
 等于1时表示需要写一个寄存器。
 
-## MemRead
+### MemRead
 等于1表示需要读内存。这个可以用于做流水线数据冲突时候，需要暂停流水线的判断。
 
-## MemWrite
+### MemWrite
 等于1表示需要写内存。
 
-## ExtendType(4:0)
+### ExtendType(4:0)
 用于给Extender作为参数，表示使用什么方法进行立即数的扩展。
 
-## BranchType(1:0)
+### BranchType(1:0)
 分支类型。有四种取值：
 * 00 表示不跳转
 * 01 表示总是跳转
 * 10 表示等于0跳转
 * 11 表示不等于0跳转
 
-## Jump
+### Jump
 等于1标识是跳转（J型）指令
 
-## RegSrcA(3:0)
+### RegSrcA(3:0)
 源寄存器A的编号，四位。最高位为1是通用寄存器，最高位为0是特殊寄存器。
 
-## RegSrcB(3:0)
+### RegSrcB(3:0)
 源寄存器B。
 
-## RegDest(3:0)
+### RegDest(3:0)
 目的寄存器。
 
-## ALUSrc
+### ALUSrc
 用于选择ALU的第二个操作数来自寄存器还是立即数。
 
-## MemToReg
+### MemToReg
 等于1表示写会寄存器的值是从内存中读取的（load类指令）

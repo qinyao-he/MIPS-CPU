@@ -12,7 +12,7 @@
 
 ### MemToReg
 
-### ALUResult(15:0)
+### EXResult(15:0)
 
 ### RegDataA(15:0)
 

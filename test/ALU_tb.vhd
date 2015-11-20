@@ -2,7 +2,7 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:	22:39:28 11/20/2015
+-- Create Date:	23:33:20 11/20/2015
 -- Design Name:	
 -- Module Name:	C:/Code/CPU/ALU/ALU_tb.vhd
 -- Project Name:  ALU
@@ -41,34 +41,34 @@ ARCHITECTURE behavior OF ALU_tb IS
  
 	 COMPONENT ALU
 	 PORT(
-			dataA : IN  std_logic_vector(15 downto 0);
-			dataB : IN  std_logic_vector(15 downto 0);
-			operation : IN  std_logic_vector(2 downto 0);
-			result : OUT  std_logic_vector(15 downto 0)
+			InputA : IN  std_logic_vector(15 downto 0);
+			InputB : IN  std_logic_vector(15 downto 0);
+			ALUop : IN  std_logic_vector(2 downto 0);
+			Output : OUT  std_logic_vector(15 downto 0)
 		  );
 	 END COMPONENT;
 	 
 
 	--Inputs
-	signal dataA : std_logic_vector(15 downto 0) := (others => '0');
-	signal dataB : std_logic_vector(15 downto 0) := (others => '0');
-	signal operation : std_logic_vector(2 downto 0) := (others => '0');
+	signal InputA : std_logic_vector(15 downto 0) := (others => '0');
+	signal InputB : std_logic_vector(15 downto 0) := (others => '0');
+	signal ALUop : std_logic_vector(2 downto 0) := (others => '0');
 
  	--Outputs
-	signal result : std_logic_vector(15 downto 0);
+	signal Output : std_logic_vector(15 downto 0);
 	-- No clocks detected in port list. Replace <clock> below with 
 	-- appropriate port name 
  
-	-- constant <clock>_period : time := 10 ns;
+--	constant <clock>_period : time := 10 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
 	uut: ALU PORT MAP (
-			 dataA => dataA,
-			 dataB => dataB,
-			 operation => operation,
-			 result => result
+			 InputA => InputA,
+			 InputB => InputB,
+			 ALUop => ALUop,
+			 Output => Output
 		  );
 
 	-- Clock process definitions
@@ -85,31 +85,29 @@ BEGIN
 	stim_proc: process
 	begin		
 		-- hold reset state for 100 ns.
-		dataA <= "0000000000000001";
-		dataB <= "0000000000000010";
-		operation <= "000";
+		InputA <= "0000000000000001";
+		InputB <= "0000000000000010";
+		ALUop <= "000";
 		wait for 100 ns;	
-		dataA <= "0000000000000101";
-    dataB <= "0000000000000010";
-    operation <= "001";
-    wait for 100 ns;  
-    dataA <= "0000000000001100";
-    dataB <= "0000000000001010";
-    operation <= "010";
-    wait for 100 ns;  
-    dataA <= "0000000000001100";
-    dataB <= "0000000000001010";
-    operation <= "101";
-    wait for 100 ns;  
-    dataA <= "0000000000001100";
-    dataB <= "0000000000000001";
-    operation <= "011";
-    wait for 100 ns;  
-    dataA <= "0000000000001100";
-    dataB <= "0000000000000001";
-    operation <= "100";
---		wait for <clock>_period*10;
-
+		InputA <= "0000000000000101";
+		InputB <= "0000000000000010";
+		ALUop <= "001";
+		wait for 100 ns;  
+		InputA <= "0000000000001100";
+		InputB <= "0000000000001010";
+		ALUop <= "010";
+		wait for 100 ns;  
+		InputA <= "0000000000001100";
+		InputB <= "0000000000001010";
+		ALUop <= "101";
+		wait for 100 ns;  
+		InputA <= "0000000000001100";
+		InputB <= "0000000000000001";
+		ALUop <= "011";
+		wait for 100 ns;  
+		InputA <= "0000000000001100";
+		InputB <= "0000000000000001";
+		ALUop <= "100";
 		-- insert stimulus here 
 
 		wait;

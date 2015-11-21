@@ -6,7 +6,7 @@
 
 ### TType
 
-### EXEResultSelect(1:0)
+### EXResultSelect(1:0)
 
 ### RegWrite
 

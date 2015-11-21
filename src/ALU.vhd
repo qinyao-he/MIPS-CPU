@@ -12,10 +12,10 @@ entity ALU is
 end ALU;
 
 architecture arch of ALU is
-signal Output_tmp : std_logic_vector (15 downto 0);
+signal OutputTmp : std_logic_vector (15 downto 0);
 begin
-	Output <= Output_tmp;
-	with ALUop select Output_tmp <=
+	Output <= OutputTmp;
+	with ALUop select OutputTmp <=
 		InputA + InputB when "000",
 		InputA - InputB when "001",
 		InputA and InputB when "010",

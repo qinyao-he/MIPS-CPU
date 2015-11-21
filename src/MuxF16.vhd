@@ -4,7 +4,7 @@
 -- 
 -- Create Date:    23:04:58 11/19/2015 
 -- Design Name: 
--- Module Name:    Mux16F - RTL 
+-- Module Name:    MuxF16 - RTL 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -29,7 +29,7 @@ use ieee.std_logic_1164.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity Mux16F is
+entity MuxF16 is
 	port (
 		Control : in std_logic_vector(1 downto 0);
 		InputA : in std_logic_vector(15 downto 0);
@@ -38,9 +38,9 @@ entity Mux16F is
 		InputD : in std_logic_vector(15 downto 0);
 		Output : out std_logic_vector(15 downto 0)
 	);
-end Mux16F;
+end MuxF16;
 
-architecture RTL of Mux16F is
+architecture RTL of MuxF16 is
 
 begin
 

@@ -40,18 +40,18 @@ entity PCReg is
 end PCReg;
 
 architecture RTL of PCReg is
-	signal pcreg : std_logic_vector(15 downto 0);
+	signal PCReg : std_logic_vector(15 downto 0);
 begin
 	
-	Output <= pcreg;
+	Output <= PCReg;
 
 	process(Clock)
 	begin
 		if rising_edge(Clock) then
 			if Reset = '1' then
-				pcreg <= (others => '0');
+				PCReg <= (others => '0');
 			elsif WriteEN = '1' then
-				pcreg <= Input;
+				PCReg <= Input;
 			end if;
 		end if;
 	end process;

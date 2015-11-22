@@ -39,7 +39,7 @@ end BranchSelector;
 architecture Behavioral of BranchSelector is
 begin
 	BranchSelector	<= "00" when BranchType = "00" and Jump = '0' else
-						"01" when BranchType = "01" or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
+						"01" when (BranchType = "01" and Jump = '0') or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
 						"10" when Jump = '1'; 
 end Behavioral;
 

@@ -456,7 +456,8 @@ signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0);
 begin
 
 	Reset <= not Rst;
-	-- CPUClock <= Clock;
+	CPUClock <= Clock;
+	LED <= EXMuxF16Output;
 
 	-- IF
 	IFMuxT16_c : MuxT16 port map (
@@ -489,7 +490,8 @@ begin
 		Clock => CPUClock,
 		Reset => BranchSelectorIFIDClear,
 		WriteEN => HazardUnitIFIDWrite,
-		InstructionInput => IOBridgeDataOutput1,
+		-- InstructionInput => IOBridgeDataOutput1,
+		InstructionInput => SW,
 		PCInput => IFAdder16Output_1,
 		RPCInput => IFAdder16Output_2,
 		InstructionOutput => IFIDInstructionOutput,

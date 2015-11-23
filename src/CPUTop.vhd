@@ -147,7 +147,8 @@ component EXMEMReg
 end component; -- EXMEMReg
 
 component Extender
-	port ( Instruction : in std_logic_vector (15 downto 0);
+	port ( 
+		Instruction : in std_logic_vector (15 downto 0);
 		Output : out std_logic_vector (15 downto 0)
 		 );
 end component; -- Extender
@@ -170,8 +171,8 @@ component HazardUnit
 		IDEXMemRead : in std_logic;
 		IDEXRegDest : in std_logic_vector (3 downto 0);
 		RegSrcA : in std_logic_vector (3 downto 0);
-		RegSrcB: in std_logic_vector (3 downto 0);
-		PCWrite: out std_logic;
+		RegSrcB : in std_logic_vector (3 downto 0);
+		PCWrite : out std_logic;
 		IFIDWrite : out std_logic;
 		IDEXClear : out std_logic
 	);
@@ -349,25 +350,207 @@ component TSelector
 	);
 end component; -- TSelector
 
+component Memory
+	port ( 
+		ReadEN : in std_logic;
+		WriteEN : in std_logic;
+		Address : in std_logic_vector (15 downto 0);
+		DataInput : in std_logic_vector (15 downto 0);
+		DataOutput : out std_logic_vector (15 downto 0)
+	);
+end component; -- Memory
+
 -- end components
 
--- signal SSD_data : STD_LOGIC_VECTOR (7 downto 0);
+signal Clock : std_logic;
+signal Clock_4x : std_logic;
+signal Reset : std_logic;
 -- IF
 signal IFMuxT16Output : std_logic_vector (15 downto 0);
 signal IFPCRegOutput : std_logic_vector (15 downto 0);
-
-
+signal IFMemoryDataOutput : std_logic_vector (15 downto 0);
+signal IFAdder16Output_1 : std_logic_vector (15 downto 0);
+signal IFAdder16Output_2 : std_logic_vector (15 downto 0);
+-- IFID
+signal IFIDInstructionOutput : std_logic_vector (15 downto 0);
+signal IFIDPCOutput : std_logic_vector (15 downto 0);
+signal IFIDRPCOutput : std_logic_vector (15 downto 0);
 -- ID
+signal IDControllerTType : std_logic;
+signal IDControllerEXResultSelect : std_logic_vector (1 downto 0);
+signal IDControllerRegWrite : std_logic;
+signal IDControllerMemRead : std_logic;
+signal IDControllerMemWrite : std_logic;
+signal IDControllerBranchType : std_logic_vector (1 downto 0);
+signal IDControllerJump : std_logic;
+signal IDControllerRegSrcA : std_logic_vector (3 downto 0);
+signal IDControllerRegSrcB : std_logic_vector (3 downto 0);
+signal IDControllerRegDest : std_logic_vector (3 downto 0);
+signal IDControllerALUSrc : std_logic;
+signal IDControllerMemToReg : std_logic;
 
--- EXE
+signal IDRegisterFileReadDataA : std_logic_vector (15 downto 0);
+signal IDRegisterFileReadDataB : std_logic_vector (15 downto 0);
+
+signal IDExtenderOutput : std_logic_vector (15 downto 0);
+-- Unit
+signal HazardUnitPCWrite : std_logic;
+signal HazardUnitIFIDWrite : std_logic;
+signal HazardUnitIDEXClear : std_logic;
+-- IDEX
+signal IDEXPCOutput : std_logic_vector (15 downto 0);
+signal IDEXTTypeOutput : std_logic;
+signal IDEXEXResultSelectOutput : std_logic_vector (1 downto 0);
+signal IDEXRegWriteOutput : std_logic;
+signal IDEXMemReadOutput : std_logic;
+signal IDEXMemWriteOutput : std_logic;
+signal IDEXInstructionOutput : std_logic_vector (15 downto 0);
+signal IDEXBranchTypeOutput : std_logic_vector (1 downto 0);
+signal IDEXJumpOutput : std_logic;
+signal IDEXRegSrcAOutput : std_logic_vector (3 downto 0);
+signal IDEXRegSrcBOutput : std_logic_vector (3 downto 0);
+signal IDEXRegDestOutput : std_logic_vector (3 downto 0);
+signal IDEXALUSrcOutput : std_logic;
+signal IDEXMemToRegOutput : std_logic;
+signal IDEXRegDataAOutput : std_logic_vector (15 downto 0);
+signal IDEXRegDataBOutput : std_logic_vector (15 downto 0);
+signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 
 -- MEMORY
 
 -- Readback
 
 begin
-	Adder16PortMap : Adder16 port map (
-		
+	-- IF
+	IFMuxT16_c : MuxT16 port map (
+		Control => ,
+		InputA => IFAdder16Output_1,
+		InputB => ,
+		InputC => ,
+		Output => IFMuxT16Output
+	);
+	IFMuxT16_c : PCReg port map (
+		Clock => Clock_4x,
+		Reset => Reset,
+		WriteEN => ,
+		Input => IFMuxT16Output,
+		Output => IFPCRegOutput
+	);
+	IFMemory_c : Memory port map (
+		ReadEN => ,
+		WriteEN => ,
+		Address => IFPCRegOutput,
+		DataInput => ,
+		DataOutput => IFMemoryDataOutput
+	);
+	IFAdder16_c_1 : Adder16 port map (
+		InputA => IFPCRegOutput,
+		InputB => "0000000000000001",
+		Output => IFAdder16Output_1
+	);
+	IFAdder16_c_1 : Adder16 port map (
+		InputA => IFPCRegOutput,
+		InputB => "0000000000000010",
+		Output => IFAdder16Output_2
+	);
+
+	-- IFID
+	IFIDReg_c : IFIDReg port map (
+		Clock => ,
+		Reset => ,
+		WriteEN => ,
+		InstructionInput => IFMemoryDataOutput,
+		PCInput => IFAdder16Output_1,
+		RPCInput => IFAdder16Output_2,
+		InstructionOutput => IFIDInstructionOutput,
+		PCOutput => IFIDPCOutput,
+		RPCOutput => IFIDRPCOutput
+	);
+
+	-- ID
+	Controller_c : Controller port map (
+		Instruction => IFIDInstructionOutput,
+		TType => IDControllerTType ,
+		EXResultSelect => IDControllerEXResultSelect,
+		RegWrite => IDControllerRegWrite,
+		MemRead => IDControllerMemRead,
+		MemWrite => IDControllerMemWrite,
+		BranchType => IDControllerBranchType,
+		Jump => IDControllerJump,
+		RegSrcA => IDControllerRegSrcA,
+		RegSrcB => IDControllerRegSrcB,
+		RegDest => IDControllerRegDest,
+		ALUSrc => IDControllerALUSrc,
+		MemToReg => IDControllerMemToReg
+	);
+	RegisterFile_c : RegisterFile port map (
+		Clock => ,
+		Reset => ,
+		WriteEN => ,
+		ReadRegA => ,
+		ReadRegB => ,
+		WriteReg => ,
+		WriteData => ,
+		PCInput => ,
+		RPCInput => ,
+		ReadDataA => IDRegisterFileReadDataA,
+		ReadDataB => IDRegisterFileReadDataB
+	);
+	Extender_c : Extender port map (
+		Instruction => IFIDInstructionOutput,
+		Output => IDExtenderOutput
+	);
+	-- Unit
+	HazardUnit_c : HazardUnit port map (
+		IDEXMemRead => ,
+		IDEXRegDest => ,
+		RegSrcA => ,
+		RegSrcB => ,
+		PCWrite => HazardUnitPCWrite,
+		IFIDWrite => HazardUnitIFIDWrite,
+		IDEXClear => HazardUnitIDEXClear
+	);
+	-- IDEX
+	IDEXReg_c : IDEXReg port map (
+		Clock => ,
+		Reset => ,
+		WriteEN => ,
+
+		PCInput => ,
+		TTypeInput => ,
+		EXResultSelectInput => ,
+		RegWriteInput => ,
+		MemReadInput => ,
+		MemWriteInput => ,
+		InstructionInput => ,
+		BranchTypeInput => ,
+		JumpInput => ,
+		RegSrcAInput => ,
+		RegSrcBInput => ,
+		RegDestInput => ,
+		ALUSrcInput => ,
+		MemToRegInput => ,
+		RegDataAInput => ,
+		RegDataBInput => ,
+		ExtendedNumberInput => ,
+
+		PCOutput => IDEXPCOutput,
+		TTypeOutput => IDEXTTypeOutput,
+		EXResultSelectOutput => IDEXEXResultSelectOutput,
+		RegWriteOutput => IDEXRegWriteOutput,
+		MemReadOutput => IDEXMemReadOutput,
+		MemWriteOutput => IDEXMemWriteOutput,
+		InstructionOutput => IDEXInstructionOutput,
+		BranchTypeOutput => IDEXBranchTypeOutput,
+		JumpOutput => IDEXJumpOutput,
+		RegSrcAOutput => IDEXRegSrcAOutput,
+		RegSrcBOutput => IDEXRegSrcBOutput,
+		RegDestOutput => IDEXRegDestOutput,
+		ALUSrcOutput => IDEXALUSrcOutput,
+		MemToRegOutput => IDEXMemToRegOutput,
+		RegDataAOutput => IDEXRegDataAOutput,
+		RegDataBOutput => IDEXRegDataBOutput,
+		ExtendedNumberOutput => IDEXExtenedNumberOutput
 	);
 
 end Behavioral;

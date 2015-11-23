@@ -16,7 +16,7 @@ architecture arch of ALU is
 signal OutputTmp : std_logic_vector (15 downto 0);
 begin
 	Output <= OutputTmp;
-	ALUop <=InputA + InputB when ALUop = "000" else
+	OutputTmp <=InputA + InputB when ALUop = "000" else
 			InputA - InputB when ALUop = "001" else
 			InputA and InputB when ALUop = "010" else
 			to_stdlogicvector(to_bitvector(InputA) sll conv_integer(InputB(3 downto 0))) when ALUop = "011" and InputB /= "0000000000000000" else

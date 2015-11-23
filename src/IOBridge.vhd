@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Company:
--- Engineer: 何钦�
+-- Engineer: ä½•é’¦å�
 --
 -- Create Date:    16:09:26 11/23/2015
 -- Design Name:
@@ -102,13 +102,20 @@ begin
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTBRE and SerialTSRE);
 
 	process (Clock, Reset)
+		variable cnt : std_logic_vector(1 downto 0);
 	begin
 		if Reset = '1' then
 			state <= INIT;
+			cnt := "00";
 		elsif falling_edge(Clock) then
 			case state is
 				when INIT =>
-					state <= DATA_WRITE;
+					if cnt = "10" then
+						state <= DATA_WRITE;
+					else
+						state <= INIT;
+						cnt := cnt + 1;
+					end if;
 				when DATA_WRITE =>
 					state <= INS_READ;
 				when INS_READ =>
@@ -130,11 +137,13 @@ begin
 		end if;
 	end process;
 
-	process (Clock)
-		variable cnt : std_logic_vector(2 downto 0) := "000";
+	process (Clock, Reset)
+		variable cnt : std_logic_vector(1 downto 0) := "00";
 	begin
-		if rising_edge(Clock) then
-			CPUClock <= cnt(2);
+		if Reset = '1' then
+			cnt := "00";
+		elsif rising_edge(Clock) then
+			CPUClock <= cnt(1);
 			cnt := cnt + 1;
 		end if;
 	end process;

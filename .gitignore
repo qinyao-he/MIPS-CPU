@@ -26,7 +26,6 @@ xlnx_auto_0_xdb/
 *.ptwx
 *.twr
 *.twx
-*.ucf
 *.unroutes
 *.ut
 *.xpi

@@ -456,7 +456,7 @@ signal IFIDReset, IDEXReset : std_logic;
 begin
 
 	Reset <= not Rst;
-	CPUClock <= Clock;
+	-- CPUClock <= Clock;
 	LED <= EXMuxF16Output;
 
 	-- IF
@@ -701,7 +701,7 @@ begin
 	IOBridge_c : IOBridge port map (
 		Clock => Clock,
 		Reset => Reset,
-		-- CPUClock => CPUClock,
+		CPUClock => CPUClock,
 
 		ReadEN => EXMEMMemReadOutput,
 		WriteEN => EXMEMMemWriteOutput,

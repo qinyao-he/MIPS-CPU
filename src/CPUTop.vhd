@@ -368,7 +368,6 @@ signal Reset : std_logic;
 -- IF
 signal IFMuxT16Output : std_logic_vector (15 downto 0);
 signal IFPCRegOutput : std_logic_vector (15 downto 0);
-<<<<<<< HEAD
 signal IFMemoryDataOutput : std_logic_vector (15 downto 0);
 signal IFAdder16Output_1 : std_logic_vector (15 downto 0);
 signal IFAdder16Output_2 : std_logic_vector (15 downto 0);
@@ -450,7 +449,6 @@ signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 -- Readback
 
 begin
-<<<<<<< HEAD
 	-- IF
 	IFMuxT16_c : MuxT16 port map (
 		Control => ,

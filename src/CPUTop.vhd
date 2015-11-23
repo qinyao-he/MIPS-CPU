@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+signal ----------------------------------------------------------------------------------
 -- Company: 
 -- Engineer: 
 -- 
@@ -81,7 +81,7 @@ component ALU
 	port ( 
 		InputA : in std_logic_vector (15 downto 0);
 		InputB : in std_logic_vector (15 downto 0);
-		ALUop : in std_logic_vector (2 downto 0);
+		ALUOp : in std_logic_vector (2 downto 0);
 		Output : out std_logic_vector (15 downto 0) := "0000000000000000";
 		ALUFlags : out std_logic_vector(1 downto 0)
 	);
@@ -99,7 +99,7 @@ component BranchSelector
 		BranchType : in  std_logic_vector (1 downto 0);
 		Jump : in  std_logic;
 		Input : in  std_logic_vector (15 downto 0);
-		BranchSelector : out  std_logic_vector (1 downto 0);
+		BranchSelect : out  std_logic_vector (1 downto 0);
 		IFIDClear : out std_logic);
 	);
 end component; -- BranchSelector
@@ -355,8 +355,33 @@ end component; -- TSelector
 -- IF
 signal IFMuxT16Output : std_logic_vector (15 downto 0);
 signal IFPCRegOutput : std_logic_vector (15 downto 0);
-
-
+signal EXMEMRegWriteOutput : std_logic;
+signal EXMEMMemReadOutput : std_logic;
+signal EXMEMMemWriteOutput : std_logic;
+signal EXMEMMemToRegOutput : std_logic;
+signal EXMEMRegDestOutput : std_logic_vector(3 downto 0);
+signal EXMEMEXResultOutput : std_logic_vector(15 downto 0);
+signal EXMEMRegDataAOutput : std_logic_vector(15 downto 0);
+signal EXMEMRegDataBOutput : std_logic_vector(15 downto 0);
+signal EXMuxF16Output : std_logic_vector(15 downto 0);
+signal ALUOutput : std_logic_vector(15 downto 0);
+signal ALUALUFlags : std_logic(1 downto 0);
+signal TSelectorTOutput : std_logic_vector(15 downto 0);
+signal ALUControllerALUOp : std_logic_vector(2 downto 0);
+signal EXAddr16Output : std_logic_vector(15 downto 0);
+signal EXMux16Output : std_logic_vector(15 downto 0);
+signal EXMuxT16_1Output : std_logic_vector(15 downto 0);
+signal EXMuxT16_2Output : std_logic_vector(15 downto 0);
+signal BranchSelectorBranchSelect : std_logic_vector(1 downto 0);
+signal BranchSelectorIFIDClear : std_logic;
+signal ForwardUnitForwardA : std_logic_vector(1 downto 0);
+signal ForwardUnitForwardB : std_logic_vector(1 downto 0);
+signal MEMWBRegWriteOutput : std_logic;
+signal MEMWBMemToRegOutput : std_logic;
+signal MEMWBRegDestOutput : std_logic_vector(3 downto 0);
+signal MEMWBEXResultOutput : std_logic_vector(15 downto 0);
+signal MEMWBMemDataOutput : std_logic_vector(15 downto 0);
+signal WBMux16Output : std_logic_vector(15 downto 0);
 -- ID
 
 -- EXE
@@ -366,9 +391,116 @@ signal IFPCRegOutput : std_logic_vector (15 downto 0);
 -- Readback
 
 begin
-	Adder16PortMap : Adder16 port map (
-		
-	);
+	EXMEMReg_c : EXMEMReg port map(
+		Clock => Clock_4x,
+		Reset => Rst,
+		WriteEN => '1',
+		RegWriteInput => IDEXRegWriteOutput,
+		MemReadInput => IDEXMemReadOutput,
+		MemWriteInput => IDEXMemWriteOutput,
+		RegDestInput => IDEXRegDestOutput,
+		MemToRegInput => IDEXMemToRegOutput,
+		EXResultInput => EXMuxF16Output,
+		RegDataAInput => EXMuxT16_1Output,
+		RegDataBInput => EXMuxT16_2Output,
+		RegWriteOutput => EXMEMRegWriteOutput,
+		MemReadOutput => EXMEMMemReadOutput,
+		MemWriteOutput => EXMEMMemWriteOutput,
+		RegDestOutput => EXMEMRegDestOutput,
+		MemToRegOutput => EXMEMMemToRegOutput,
+		EXResultOutput => EXMEMEXResultOutput,
+		RegDataAOutput => EXMEMRegDataAOutput,
+		RegDataBOutput => EXMEMRegDataBOutput
+		);
+	EXMuxF16_c : MuxF16 port map(
+		Control => IDEXEXResultSelectOutput,
+		InputA => ALUOutput,
+		InputB => TSelectorTOutput,
+		InputC => EXMuxT16_1Output,
+		InputD => EXMux16Output,
+		Output => EXMuxF16Output
+		);
+	ALU_c : ALU port map(
+		ALUOp => ALUControllerALUOp,
+		InputA => EXMuxT16_1Output,
+		InputB => EXMux16Output,
+		Output => ALUOutput,
+		ALUFlags => ALUALUFlags
+		);
+	TSelector_c : TSelector port map(
+		TType => ,
+		ALUFlags => ALUALUFlags,
+		TOutput => TSelectorTOutput
+		);
+	ALUController_c : ALUController port map(
+		Instruction => ,
+		ALUOp => ALUControllerALUOp
+		);
+	EXAddr16 : Adder16 port map(
+		InputA => ,
+		InputB => ,
+		Output => EXAddr16Output
+		);
+	EXMuxT16_1 : MuxT16 port map(
+		Control => ForwardUnitForwardA,
+		InputA => ,
+		InputB => EXMEMEXResultOutput,
+		InputC => WBMux16Output,
+		Output => EXMuxT16_1Output
+		);
+	EXMuxT16_2 : MuxT16 port map(
+		Control => ForwardUnitForwardB,
+		InputA => ,
+		InputB => EXMEMEXResultOutput,
+		InputC => WBMux16Output,
+		Output => EXMuxT16_2Output
+		);
+	EXMux16_c : Mux16 port map(
+		Control => ,
+		InputA => EXMuxT16_2Output,
+		InputB => ,
+		Output => EXMux16Output
+		);
+	BranchSelector_c : BranchSelector port map(
+		BranchType => ,
+		Jump => ,
+		Input => EXMuxT16_1Output,
+		BranchSelect => BranchSelectorBranchSelect,
+		IFIDClear => BranchSelectorIFIDClear
+		);
+	ForwardUnit_c : ForwardUnit port map(
+		EXMEMRegWrite => EXMEMRegWriteOutput,
+		MEMWBRegWrite => MEMWBRegWriteOutput,
+		EXMEMRegDest => EXMEMRegDestOutput,
+		MEMWBRegDest => MEMWBRegDestOutput,
+		IDEXRegSrcA=> ,
+		IDEXRegSrcB=> ,
+		ForwardA => ForwardUnitForwardA,
+		ForwardB => ForwardUnitForwardB
+		);
+	MEMWBReg_c : MEMWBReg port map(
+		Clock => Clock_4x,
+		Reset => Rst,
+		WriteEN => '1',
+
+		RegWriteInput => EXMEMRegWriteOutput,
+		MemToRegInput => EXMEMMemToRegOutput,
+		RegDestInput => EXMEMRegDestOutput,
+		EXResultInput => EXMEMEXResultOutput,
+		MemDataInput => MemoryDataOutput,
+
+		RegWriteOutput => MEMWBRegWriteOutput,
+		MemToRegOutput => MEMWBMemToRegOutput,
+		RegDestOutput => MEMWBRegDestOutput,
+		EXResultOutput => MEMWBEXResultOutput,
+		MemDataOutput => MEMWBMemDataOutput
+		);
+	WBMux16 : Mux16 port map(
+		Control => MEMWBMemToRegOutput,
+		InputA => MEMWBEXResultOutput,
+		InputB => MEMWBMemDataOutput,
+		Output => WBMux16Output
+		);
 
 end Behavioral;
 

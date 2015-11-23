@@ -452,7 +452,7 @@ signal IOBridgeSerialWRN : std_logic;
 signal IOBridgeSerialRDN : std_logic;
 signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0);
 -- Readback
-
+signal IFIDReset, IDEXReset : std_logic;
 begin
 
 	Reset <= not Rst;
@@ -486,9 +486,10 @@ begin
 	);
 
 	-- IFID
+	IFIDReset <= BranchSelectorIFIDClear or Reset;
 	IFIDReg_c : IFIDReg port map (
 		Clock => CPUClock,
-		Reset => BranchSelectorIFIDClear,
+		Reset => IFIDReset,
 		WriteEN => HazardUnitIFIDWrite,
 		-- InstructionInput => IOBridgeDataOutput1,
 		InstructionInput => SW,
@@ -543,9 +544,10 @@ begin
 		IDEXClear => HazardUnitIDEXClear
 	);
 	-- IDEX
+	IDEXReset <= HazardUnitIDEXClear or Reset;
 	IDEXReg_c : IDEXReg port map (
 		Clock => CPUClock,
-		Reset => HazardUnitIDEXClear,
+		Reset => IDEXReset,
 		WriteEN => '1',
 
 		PCInput => IFIDPCOutput,

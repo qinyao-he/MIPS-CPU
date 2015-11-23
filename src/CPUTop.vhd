@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    00:14:58 11/24/2015 
--- Design Name: 
--- Module Name:    CPUTop - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    00:14:58 11/24/2015
+-- Design Name:
+-- Module Name:    CPUTop - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -30,38 +30,27 @@ use ieee.std_logic_1164.all;
 --use UNISIM.VComponents.all;
 
 entity CPUTop is
-	port ( 
+	port (
 		Clock : in std_logic;
-		-- Clock_4x : out std_logic;
 		Rst : in std_logic;
-		RAM1_we : out std_logic;
-		RAM1_oe : out std_logic;
-		RAM1_en : out std_logic;
-		RAM1_addr : out std_logic_vector (17 downto 0);
-		RAM1_data : inout std_logic_vector (15 downto 0);
-		RAM2_we : out std_logic;
-		RAM2_oe : out std_logic;
-		RAM2_en : out std_logic;
-		RAM2_addr : out std_logic_vector (17 downto 0);
-		RAM2_data : inout std_logic_vector (15 downto 0);
-		--
-		COM_rdn : out  STD_LOGIC;
-		COM_wrn : out  STD_LOGIC;
-		COM_tsre: in  STD_LOGIC;
-		COM_tbre: in  STD_LOGIC;
-		COM_data_ready: in  STD_LOGIC; 
-		Flash_byte : out  STD_LOGIC;
-		Flash_vpen : out  STD_LOGIC;
-		Flash_ce : out  STD_LOGIC;
-		Flash_oe : out  STD_LOGIC;
-		Flash_we : out  STD_LOGIC;
-		Flash_rp : out  STD_LOGIC;
-		Flash_addr : out  STD_LOGIC_VECTOR (22 downto 0);
-		Flash_data : inout  STD_LOGIC_VECTOR (15 downto 0);
-		Reload : in  STD_LOGIC;
-		LED : out  STD_LOGIC_VECTOR (15 downto 0);
-		SSD_h : out  STD_LOGIC_VECTOR (6 downto 0);
-		SSD_l : out  STD_LOGIC_VECTOR (6 downto 0)
+
+		Ram1EN : out std_logic;
+		Ram1Data : inout std_logic_vector (15 downto 0);
+
+		Ram2Addr : out std_logic_vector(17 downto 0);
+		Ram2Data : inout std_logic_vector(15 downto 0);
+		Ram2OE : out std_logic;
+		Ram2WE : out std_logic;
+		Ram2EN : out std_logic;
+
+		SerialWRN : out std_logic;
+		SerialRDN : out std_logic;
+		SerialDATA_READY : in std_logic;
+		SerialTSRE : in std_logic;
+		SerialTBRE : in std_logic;
+
+		SW : in std_logic_vector(15 downto 0);
+		LED : out std_logic_vector (15 downto 0)
 	);
 end CPUTop;
 
@@ -70,7 +59,7 @@ architecture Behavioral of CPUTop is
 -- components
 
 component Adder16
-	port ( 
+	port (
 		InputA : in std_logic_vector (15 downto 0);
 		InputB : in std_logic_vector (15 downto 0);
 		Output : out std_logic_vector (15 downto 0) := "0000000000000000"
@@ -78,7 +67,7 @@ component Adder16
 end component; -- Adder16
 
 component ALU
-	port ( 
+	port (
 		InputA : in std_logic_vector (15 downto 0);
 		InputB : in std_logic_vector (15 downto 0);
 		ALUOp : in std_logic_vector (2 downto 0);
@@ -88,24 +77,24 @@ component ALU
 end component; -- ALU
 
 component ALUController
-	port ( 
+	port (
 		Instruction: in std_logic_vector(15 downto 0);
 		ALUOp: out std_logic_vector(2 downto 0)
 	);
 end component; -- ALUController
 
 component BranchSelector
-	port ( 
+	port (
 		BranchType : in  std_logic_vector (1 downto 0);
 		Jump : in  std_logic;
 		Input : in  std_logic_vector (15 downto 0);
 		BranchSelect : out  std_logic_vector (1 downto 0);
-		IFIDClear : out std_logic);
+		IFIDClear : out std_logic
 	);
 end component; -- BranchSelector
 
 component Controller
-	port ( 
+	port (
 		Instruction : in std_logic_vector (15 downto 0);
 		TType : out std_logic;
 		EXResultSelect : out std_logic_vector (1 downto 0);
@@ -118,12 +107,12 @@ component Controller
 		RegSrcB : out std_logic_vector (3 downto 0);
 		RegDest : out std_logic_vector (3 downto 0);
 		ALUSrc : out std_logic;
-		MemToReg : out std_logic);
+		MemToReg : out std_logic
 	);
 end component; -- Controller
 
 component EXMEMReg
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		WriteEN : in std_logic;
@@ -147,14 +136,14 @@ component EXMEMReg
 end component; -- EXMEMReg
 
 component Extender
-	port ( 
+	port (
 		Instruction : in std_logic_vector (15 downto 0);
 		Output : out std_logic_vector (15 downto 0)
 		 );
 end component; -- Extender
 
 component ForwardUnit
-	port ( 
+	port (
 		EXMEMRegWrite : in std_logic;
 		MEMWBRegWrite : in std_logic;
 		EXMEMRegDest : in std_logic_vector (3 downto 0);
@@ -167,7 +156,7 @@ component ForwardUnit
 end component; -- ForwardUnit
 
 component HazardUnit
-	port ( 
+	port (
 		IDEXMemRead : in std_logic;
 		IDEXRegDest : in std_logic_vector (3 downto 0);
 		RegSrcA : in std_logic_vector (3 downto 0);
@@ -179,7 +168,7 @@ component HazardUnit
 end component; -- HazardUnit
 
 component IDEXReg
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		WriteEN : in std_logic;
@@ -223,7 +212,7 @@ component IDEXReg
 end component; -- IDEXReg
 
 component IFIDReg
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		WriteEN : in std_logic;
@@ -237,23 +226,26 @@ component IFIDReg
 end component; -- IFIDReg
 
 component IOBridge
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		CPUClock : out std_logic;
+
+		ReadEN : in std_logic;
+		WriteEN : in std_logic;
 
 		Address1 : in std_logic_vector(15 downto 0);
 		DataOutput1 : out std_logic_vector(15 downto 0);
 
 		Address2 : in std_logic_vector(15 downto 0);
-		DataInput1 : in std_logic_vector(15 downto 0);
+		DataInput2 : in std_logic_vector(15 downto 0);
 		DataOutput2 : out std_logic_vector(15 downto 0);
 
 		MemoryAddress : out std_logic_vector(17 downto 0);
-		MemoryDatabus : inout std_logic_vector(15 downto 0);
+		MemoryDataBus : inout std_logic_vector(15 downto 0);
 		MemoryEN : out std_logic;
 		MemoryOE : out std_logic;
-		MemoryRE : out std_logic;
+		MemoryWE : out std_logic;
 
 		RAM1EN : out std_logic;
 
@@ -262,12 +254,12 @@ component IOBridge
 		SerialDATA_READY : in std_logic;
 		SerialTSRE : in std_logic;
 		SerialTBRE : in std_logic;
-		SerialDatabus : inout std_logic_vector(7 downto 0)
+		SerialDataBus : inout std_logic_vector(7 downto 0)
 	);
 end component; -- IOBridge
 
 component MEMWBReg
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		WriteEN : in std_logic;
@@ -287,7 +279,7 @@ component MEMWBReg
 end component; -- MEMWBReg
 
 component Mux16
-	port ( 
+	port (
 		Control : in std_logic;
 		InputA : in std_logic_vector(15 downto 0);
 		InputB : in std_logic_vector(15 downto 0);
@@ -296,7 +288,7 @@ component Mux16
 end component; -- Mux16
 
 component MuxF16
-	port ( 
+	port (
 		Control : in std_logic_vector(1 downto 0);
 		InputA : in std_logic_vector(15 downto 0);
 		InputB : in std_logic_vector(15 downto 0);
@@ -307,7 +299,7 @@ component MuxF16
 end component; -- MuxF16
 
 component MuxT16
-	port ( 
+	port (
 		Control : in std_logic_vector(1 downto 0);
 		InputA : in std_logic_vector(15 downto 0);
 		InputB : in std_logic_vector(15 downto 0);
@@ -317,7 +309,7 @@ component MuxT16
 end component; -- MuxT16
 
 component PCReg
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		WriteEN : in std_logic;
@@ -327,7 +319,7 @@ component PCReg
 end component; -- PCReg
 
 component RegisterFile
-	port ( 
+	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
 		WriteEN : in std_logic;
@@ -343,7 +335,7 @@ component RegisterFile
 end component; -- RegisterFile
 
 component TSelector
-	port ( 
+	port (
 		TType : in std_logic;
 		ALUFlags : in std_logic_vector (1 downto 0);
 		TOutput : out std_logic_vector (15 downto 0)
@@ -351,7 +343,7 @@ component TSelector
 end component; -- TSelector
 
 --component Memory
---	port ( 
+--	port (
 --		ReadEN : in std_logic;
 --		WriteEN : in std_logic;
 --		Address : in std_logic_vector (15 downto 0);
@@ -362,7 +354,6 @@ end component; -- TSelector
 
 -- end components
 
-signal Clock : std_logic;
 --signal Clock_4x : std_logic;
 signal Reset : std_logic;
 -- IF
@@ -386,7 +377,7 @@ signal EXMEMRegDataAOutput : std_logic_vector(15 downto 0);
 signal EXMEMRegDataBOutput : std_logic_vector(15 downto 0);
 signal EXMuxF16Output : std_logic_vector(15 downto 0);
 signal ALUOutput : std_logic_vector(15 downto 0);
-signal ALUALUFlags : std_logic(1 downto 0);
+signal ALUALUFlags : std_logic_vector(1 downto 0);
 signal TSelectorTOutput : std_logic_vector(15 downto 0);
 signal ALUControllerALUOp : std_logic_vector(2 downto 0);
 signal EXAddr16Output : std_logic_vector(15 downto 0);
@@ -445,7 +436,7 @@ signal IDEXRegDataBOutput : std_logic_vector (15 downto 0);
 signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 
 -- IOBridge
-signal IOBridgeCPUClock : std_logic;
+signal CPUClock : std_logic;
 signal IOBridgeDataOutput1 : std_logic_vector (15 downto 0);
 signal IOBridgeDataOutput2 : std_logic_vector (15 downto 0);
 
@@ -459,10 +450,14 @@ signal IOBridgeRAM1EN : std_logic;
 
 signal IOBridgeSerialWRN : std_logic;
 signal IOBridgeSerialRDN : std_logic;
-signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0)
+signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0);
 -- Readback
 
 begin
+
+	Reset <= not Rst;
+	-- CPUClock <= Clock;
+
 	-- IF
 	IFMuxT16_c : MuxT16 port map (
 		Control => BranchSelectorBranchSelect,
@@ -471,8 +466,8 @@ begin
 		InputC => EXMux16Output,
 		Output => IFMuxT16Output
 	);
-	IFMuxT16_c : PCReg port map (
-		Clock => IOBridgeCPUClock,
+	IFPCReg_c : PCReg port map (
+		Clock => CPUClock,
 		Reset => Reset,
 		WriteEN => HazardUnitPCWrite,
 		Input => IFMuxT16Output,
@@ -483,7 +478,7 @@ begin
 		InputB => "0000000000000001",
 		Output => IFAdder16Output_1
 	);
-	IFAdder16_c_1 : Adder16 port map (
+	IFAdder16_c_2 : Adder16 port map (
 		InputA => IFPCRegOutput,
 		InputB => "0000000000000010",
 		Output => IFAdder16Output_2
@@ -491,7 +486,7 @@ begin
 
 	-- IFID
 	IFIDReg_c : IFIDReg port map (
-		Clock => IOBridgeCPUClock,
+		Clock => CPUClock,
 		Reset => BranchSelectorIFIDClear,
 		WriteEN => HazardUnitIFIDWrite,
 		InstructionInput => IOBridgeDataOutput1,
@@ -519,7 +514,7 @@ begin
 		MemToReg => IDControllerMemToReg
 	);
 	RegisterFile_c : RegisterFile port map (
-		Clock => IOBridgeCPUClock,
+		Clock => CPUClock,
 		Reset => Reset,
 		WriteEN => MEMWBRegWriteOutput,
 		ReadRegA => IDControllerRegSrcA,
@@ -547,7 +542,7 @@ begin
 	);
 	-- IDEX
 	IDEXReg_c : IDEXReg port map (
-		Clock => IOBridgeCPUClock,
+		Clock => CPUClock,
 		Reset => HazardUnitIDEXClear,
 		WriteEN => '1',
 
@@ -589,7 +584,7 @@ begin
 	);
 	-- EXE
 	EXMEMReg_c : EXMEMReg port map (
-		Clock => IOBridgeCPUClock,
+		Clock => CPUClock,
 		Reset => Reset,
 		WriteEN => '1',
 		RegWriteInput => IDEXRegWriteOutput,
@@ -676,7 +671,7 @@ begin
 		ForwardB => ForwardUnitForwardB
 	);
 	MEMWBReg_c : MEMWBReg port map (
-		Clock => IOBridgeCPUClock,
+		Clock => CPUClock,
 		Reset => Reset,
 		WriteEN => '1',
 
@@ -702,29 +697,32 @@ begin
 	IOBridge_c : IOBridge port map (
 		Clock => Clock,
 		Reset => Reset,
-		CPUClock => IOBridgeCPUClock,
+		-- CPUClock => CPUClock,
+
+		ReadEN => EXMEMMemReadOutput,
+		WriteEN => EXMEMMemWriteOutput,
 
 		Address1 => IFPCRegOutput,
 		DataOutput1 => IOBridgeDataOutput1,
 
 		Address2 => EXMEMEXResultOutput,
-		DataInput1 => EXMEMRegDataBOutput,
+		DataInput2 => EXMEMRegDataBOutput,
 		DataOutput2 => IOBridgeDataOutput2,
 
-		MemoryAddress => ,
-		MemoryDatabus => ,
-		MemoryEN => ,
-		MemoryOE => ,
-		MemoryRE => ,
+		MemoryAddress => Ram2Addr,
+		MemoryDataBus => Ram2Data,
+		MemoryEN => Ram2EN,
+		MemoryOE => Ram2OE,
+		MemoryWE => Ram2WE,
 
-		RAM1EN => ,
+		RAM1EN => Ram1EN,
 
-		SerialWRN => ,
-		SerialRDN => ,
-		SerialDATA_READY => ,
-		SerialTSRE => ,
-		SerialTBRE => ,
-		SerialDatabus => 
+		SerialWRN => SerialWRN,
+		SerialRDN => SerialRDN,
+		SerialDATA_READY => SerialDATA_READY,
+		SerialTSRE => SerialTSRE,
+		SerialTBRE => SerialTBRE,
+		SerialDataBus => Ram1Data(7 downto 0)
 	);
 end Behavioral;
 

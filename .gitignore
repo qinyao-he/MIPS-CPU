@@ -2,3 +2,14 @@
 *.gise
 _xmsgs/
 iseconfig/
+*.cmd_log
+*.lso
+*.ngr
+*.prj
+*.stx
+*.syr
+*.xst
+*.xml
+*.xrpt
+*.ngc
+xst/

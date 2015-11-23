@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Company:
--- Engineer: 何钦尧
+-- Engineer: 何钦�
 --
 -- Create Date:    16:09:26 11/23/2015
 -- Design Name:
@@ -22,7 +22,9 @@ use ieee.std_logic_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -125,6 +127,15 @@ begin
 				when others =>
 					state <= INIT;
 			end case;
+		end if;
+	end process;
+
+	process (Clock)
+		variable cnt : std_logic_vector(2 downto 0) := "000";
+	begin
+		if rising_edge(Clock) then
+			CPUClock <= cnt(2);
+			cnt := cnt + 1;
 		end if;
 	end process;
 

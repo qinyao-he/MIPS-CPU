@@ -38,19 +38,27 @@ begin
 	first8	<=	Instruction(15 downto  8);
 	last2	<=	Instruction(1  downto  0);
 	last5	<=	Instruction(4  downto  0);
-	ALUOp	<=	"000"	when first5 = "01001" 
-						or first5 = "01000" 
-						or first5 = "11100" 
-						or first5 = "01001" 
-						or first5 = "10011" 
-						or first5 = "10010"
-						or first5 = "10011"
-						or first5 = "11010"
-						or first8 = "01100011" else
-				"001"	when (first5 = "11101" and last5 = "01010") or (first5 = "11100" and last2 = "11") else
-				"010"	when first5 = "11101" and last5 = "01100" else
-				"011"	when first5 = "00110" and last2 = "00" else
-				"100"	when first5 = "00110" and last2 = "11" else
-				"101"	when first5 = "11101" and last5 = "01101";
+	ALUOp	<=	"000"	when first5 = "01001" -- ADDIU ADD
+						or first5 = "01000"  -- ADDIU3
+						or (first5 = "11100" and last2 = "01") -- ADDU
+						or first5 = "10011" -- LW
+						or first5 = "10010" -- LW_SP
+						or first5 = "11011" -- SW
+						or first5 = "11010" -- SW_SP
+						or first8 = "01100011" -- ADDSP
+						else
+				"001"	when (first5 = "11101" and last5 = "01010") -- CMP
+						or (first5 = "11101" and last5 = "00010") -- SLT
+						or (first5 = "11100" and last2 = "11") -- SUBU
+						else
+				"010"	when first5 = "11101" and last5 = "01100" -- AND
+						else
+				"011"	when first5 = "00110" and last2 = "00" -- SLL
+						else
+				"100"	when first5 = "00110" and last2 = "11" -- SRA
+						else
+				"101"	when first5 = "11101" and last5 = "01101" -- OR
+						else
+				"111";
 end architecture;
 

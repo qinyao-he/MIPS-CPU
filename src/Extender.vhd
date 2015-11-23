@@ -51,20 +51,26 @@ begin
 	from10to0<= Instruction(10 downto  0);
 	from4to0 <= Instruction(4  downto  0);
 	from4to2 <= Instruction(4  downto  2);
-	Output	<=	EXT(from7to0, Output'length) when first5 = "01101" else
-				EXT(from4to2, Output'length) when first5 = "00110" else
-				SXT(from7to0, Output'length) when first5 = "01001"
-											or first8 = "01100011"
-											or first8 = "01100000"
-											or first8 = "01100001"
-											or first5 = "10010"
-											or first5 = "11010" else
-				SXT(from3to0, Output'length) when first5 = "01000" else
-				SXT(from10to0, Output'length)when first5 = "00010"
-											or first5 = "00100"
-											or first5 = "00101" else
-				SXT(from4to0, Output'length) when first5 = "10011"
-											or first5 = "11011" else
+	Output	<=	EXT(from7to0, Output'length)when first5 = "01101" -- LI
+											else
+				EXT(from4to2, Output'length)when first5 = "00110" -- SLL+SRA
+											else
+				SXT(from7to0, Output'length)when first5 = "01001" -- ADDIU
+											or first8 = "01100011" --ADDSP
+											or first8 = "01100000" -- BTEQZ
+											or first8 = "01100001" -- BTNEZ
+											or first5 = "10010" -- LW_SP
+											or first5 = "11010" -- SW_SP
+											or first5 = "00100" -- BEQZ
+											else
+				SXT(from3to0, Output'length)when first5 = "01000" -- ADDIU3
+											else
+				SXT(from10to0, Output'length)when first5 = "00010" -- B
+											or first5 = "00101" -- BNEZ
+											else
+				SXT(from4to0, Output'length)when first5 = "10011" -- LW
+											or first5 = "11011" -- SW
+											else
 				(others=>'0');
 end Behavioral;
 

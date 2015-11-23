@@ -8,7 +8,8 @@ entity ALU is
 		InputA : in std_logic_vector (15 downto 0);
 		InputB : in std_logic_vector (15 downto 0);
 		ALUop : in std_logic_vector (2 downto 0);
-		Output : out std_logic_vector (15 downto 0) := "0000000000000000");
+		Output : out std_logic_vector (15 downto 0) := "0000000000000000";
+		ALUFlags : out std_logic_vector(1 downto 0));
 end ALU;
 
 architecture arch of ALU is
@@ -23,5 +24,8 @@ begin
 		to_stdlogicvector(to_bitvector(InputA) sra conv_integer(InputB(3 downto 0))) when "100",
 		InputA or InputB when "101",
 		"0000000000000000" when others;
-
+	ALUFlags(1) <= 	'1' when OutputTmp < 0 else
+				'0';
+	ALUFlags(0) <= 	'1' when OutputTmp = 0 else
+				'0';
 end architecture; -- arch

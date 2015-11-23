@@ -33,13 +33,18 @@ entity BranchSelector is
     Port (BranchType : in  std_logic_vector (1 downto 0);
 			Jump : in  std_logic;
 			Input : in  std_logic_vector (15 downto 0);
-			BranchSelector : out  std_logic_vector (1 downto 0));
+			BranchSelector : out  std_logic_vector (1 downto 0);
+			IFIDClear : out std_logic);
 end BranchSelector;
 
 architecture Behavioral of BranchSelector is
+signal BranchSelectorTemp: std_logic_vector (1 downto 0);
 begin
-	BranchSelector	<= "00" when BranchType = "00" and Jump = '0' else
-						"01" when (BranchType = "01" and Jump = '0') or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
-						"10" when Jump = '1'; 
+	BranchSelector <= BranchSelectorTemp;
+	BranchSelectorTemp	<= "01" when (BranchType = "01" and Jump = '0') or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
+						"10" when Jump = '1' else
+						"00"; 
+	IFIDClear <= '1' when BranchSelectorTemp /= "00" else
+				 '0';
 end Behavioral;
 

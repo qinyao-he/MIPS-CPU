@@ -59,6 +59,7 @@ begin
 	first8	<= Instruction(15 downto  8);
 	last2	<= Instruction(1  downto  0);
 	last5	<= Instruction(4  downto  0);
+	last8 <= Instruction(7  downto  0);
 	Raddr10to8 <= '1' & Instruction(10 downto 8);
 	Raddr7to5  <= '1' & Instruction(7 downto 5);
 	Raddr4to2  <= '1' & Instruction(4 downto 2);

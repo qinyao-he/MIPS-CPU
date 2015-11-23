@@ -32,7 +32,7 @@ use ieee.std_logic_1164.all;
 entity CPUTop is
 	port ( 
 		Clock : in std_logic;
-		Clock_4x : out std_logic;
+		-- Clock_4x : out std_logic;
 		Rst : in std_logic;
 		RAM1_we : out std_logic;
 		RAM1_oe : out std_logic;
@@ -350,25 +350,25 @@ component TSelector
 	);
 end component; -- TSelector
 
-component Memory
-	port ( 
-		ReadEN : in std_logic;
-		WriteEN : in std_logic;
-		Address : in std_logic_vector (15 downto 0);
-		DataInput : in std_logic_vector (15 downto 0);
-		DataOutput : out std_logic_vector (15 downto 0)
-	);
-end component; -- Memory
+--component Memory
+--	port ( 
+--		ReadEN : in std_logic;
+--		WriteEN : in std_logic;
+--		Address : in std_logic_vector (15 downto 0);
+--		DataInput : in std_logic_vector (15 downto 0);
+--		DataOutput : out std_logic_vector (15 downto 0)
+--	);
+--end component; -- Memory
 
 -- end components
 
 signal Clock : std_logic;
-signal Clock_4x : std_logic;
+--signal Clock_4x : std_logic;
 signal Reset : std_logic;
 -- IF
 signal IFMuxT16Output : std_logic_vector (15 downto 0);
 signal IFPCRegOutput : std_logic_vector (15 downto 0);
-signal IFMemoryDataOutput : std_logic_vector (15 downto 0);
+-- signal IFMemoryDataOutput : std_logic_vector (15 downto 0);
 signal IFAdder16Output_1 : std_logic_vector (15 downto 0);
 signal IFAdder16Output_2 : std_logic_vector (15 downto 0);
 -- IFID
@@ -444,32 +444,39 @@ signal IDEXRegDataAOutput : std_logic_vector (15 downto 0);
 signal IDEXRegDataBOutput : std_logic_vector (15 downto 0);
 signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 
--- MEMORY
+-- IOBridge
+signal IOBridgeCPUClock : std_logic;
+signal IOBridgeDataOutput1 : std_logic_vector (15 downto 0);
+signal IOBridgeDataOutput2 : std_logic_vector (15 downto 0);
 
+signal IOBridgeMemoryAddress : std_logic_vector (17 downto 0);
+signal IOBridgeMemoryDatabus : std_logic_vector(15 downto 0);
+signal IOBridgeMemoryEN : std_logic;
+signal IOBridgeMemoryOE : std_logic;
+signal IOBridgeMemoryRE : std_logic;
+
+signal IOBridgeRAM1EN : std_logic;
+
+signal IOBridgeSerialWRN : std_logic;
+signal IOBridgeSerialRDN : std_logic;
+signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0)
 -- Readback
 
 begin
 	-- IF
 	IFMuxT16_c : MuxT16 port map (
-		Control => ,
+		Control => BranchSelectorBranchSelect,
 		InputA => IFAdder16Output_1,
-		InputB => ,
-		InputC => ,
+		InputB => EXAddr16Output,
+		InputC => EXMux16Output,
 		Output => IFMuxT16Output
 	);
 	IFMuxT16_c : PCReg port map (
-		Clock => Clock_4x,
+		Clock => IOBridgeCPUClock,
 		Reset => Reset,
-		WriteEN => ,
+		WriteEN => HazardUnitPCWrite,
 		Input => IFMuxT16Output,
 		Output => IFPCRegOutput
-	);
-	IFMemory_c : Memory port map (
-		ReadEN => ,
-		WriteEN => ,
-		Address => IFPCRegOutput,
-		DataInput => ,
-		DataOutput => IFMemoryDataOutput
 	);
 	IFAdder16_c_1 : Adder16 port map (
 		InputA => IFPCRegOutput,
@@ -484,10 +491,10 @@ begin
 
 	-- IFID
 	IFIDReg_c : IFIDReg port map (
-		Clock => ,
-		Reset => ,
-		WriteEN => ,
-		InstructionInput => IFMemoryDataOutput,
+		Clock => IOBridgeCPUClock,
+		Reset => BranchSelectorIFIDClear,
+		WriteEN => HazardUnitIFIDWrite,
+		InstructionInput => IOBridgeDataOutput1,
 		PCInput => IFAdder16Output_1,
 		RPCInput => IFAdder16Output_2,
 		InstructionOutput => IFIDInstructionOutput,
@@ -512,15 +519,15 @@ begin
 		MemToReg => IDControllerMemToReg
 	);
 	RegisterFile_c : RegisterFile port map (
-		Clock => ,
-		Reset => ,
-		WriteEN => ,
-		ReadRegA => ,
-		ReadRegB => ,
-		WriteReg => ,
-		WriteData => ,
-		PCInput => ,
-		RPCInput => ,
+		Clock => IOBridgeCPUClock,
+		Reset => Reset,
+		WriteEN => MEMWBRegWriteOutput,
+		ReadRegA => IDControllerRegSrcA,
+		ReadRegB => IDControllerRegSrcB,
+		WriteReg => MEMWBRegDestOutput,
+		WriteData => WBMux16Output,
+		PCInput => IFIDPCOutput,
+		RPCInput => IFIDRPCOutput,
 		ReadDataA => IDRegisterFileReadDataA,
 		ReadDataB => IDRegisterFileReadDataB
 	);
@@ -530,37 +537,37 @@ begin
 	);
 	-- Unit
 	HazardUnit_c : HazardUnit port map (
-		IDEXMemRead => ,
-		IDEXRegDest => ,
-		RegSrcA => ,
-		RegSrcB => ,
+		IDEXMemRead => IDEXMemReadOutput,
+		IDEXRegDest => IDEXRegDestOutput,
+		RegSrcA => IDControllerRegSrcA,
+		RegSrcB => IDControllerRegSrcB,
 		PCWrite => HazardUnitPCWrite,
 		IFIDWrite => HazardUnitIFIDWrite,
 		IDEXClear => HazardUnitIDEXClear
 	);
 	-- IDEX
 	IDEXReg_c : IDEXReg port map (
-		Clock => ,
-		Reset => ,
-		WriteEN => ,
+		Clock => IOBridgeCPUClock,
+		Reset => HazardUnitIDEXClear,
+		WriteEN => '1',
 
-		PCInput => ,
-		TTypeInput => ,
-		EXResultSelectInput => ,
-		RegWriteInput => ,
-		MemReadInput => ,
-		MemWriteInput => ,
-		InstructionInput => ,
-		BranchTypeInput => ,
-		JumpInput => ,
-		RegSrcAInput => ,
-		RegSrcBInput => ,
-		RegDestInput => ,
-		ALUSrcInput => ,
-		MemToRegInput => ,
-		RegDataAInput => ,
-		RegDataBInput => ,
-		ExtendedNumberInput => ,
+		PCInput => IFIDPCOutput,
+		TTypeInput => IDControllerTType,
+		EXResultSelectInput => IDControllerEXResultSelect,
+		RegWriteInput => IDControllerRegWrite,
+		MemReadInput => IDControllerMemRead,
+		MemWriteInput => IDControllerMemWrite,
+		InstructionInput => IFIDInstructionOutput,
+		BranchTypeInput => IDControllerBranchType,
+		JumpInput => IDControllerJump,
+		RegSrcAInput => IDControllerRegSrcA,
+		RegSrcBInput => IDControllerRegSrcB,
+		RegDestInput => IDControllerRegDest,
+		ALUSrcInput => IDControllerALUSrc,
+		MemToRegInput => IDControllerMemToReg,
+		RegDataAInput => IDRegisterFileReadDataA,
+		RegDataBInput => IDRegisterFileReadDataB,
+		ExtendedNumberInput => IDExtenderOutput,
 
 		PCOutput => IDEXPCOutput,
 		TTypeOutput => IDEXTTypeOutput,
@@ -581,9 +588,9 @@ begin
 		ExtendedNumberOutput => IDEXExtenedNumberOutput
 	);
 	-- EXE
-	EXMEMReg_c : EXMEMReg port map(
-		Clock => Clock_4x,
-		Reset => Rst,
+	EXMEMReg_c : EXMEMReg port map (
+		Clock => IOBridgeCPUClock,
+		Reset => Reset,
 		WriteEN => '1',
 		RegWriteInput => IDEXRegWriteOutput,
 		MemReadInput => IDEXMemReadOutput,
@@ -601,98 +608,123 @@ begin
 		EXResultOutput => EXMEMEXResultOutput,
 		RegDataAOutput => EXMEMRegDataAOutput,
 		RegDataBOutput => EXMEMRegDataBOutput
-		);
-	EXMuxF16_c : MuxF16 port map(
+	);
+	EXMuxF16_c : MuxF16 port map (
 		Control => IDEXEXResultSelectOutput,
 		InputA => ALUOutput,
 		InputB => TSelectorTOutput,
 		InputC => EXMuxT16_1Output,
 		InputD => EXMux16Output,
 		Output => EXMuxF16Output
-		);
-	ALU_c : ALU port map(
+	);
+	ALU_c : ALU port map (
 		ALUOp => ALUControllerALUOp,
 		InputA => EXMuxT16_1Output,
 		InputB => EXMux16Output,
 		Output => ALUOutput,
 		ALUFlags => ALUALUFlags
-		);
-	TSelector_c : TSelector port map(
-		TType => ,
+	);
+	TSelector_c : TSelector port map (
+		TType => IDEXTTypeOutput,
 		ALUFlags => ALUALUFlags,
 		TOutput => TSelectorTOutput
-		);
+	);
 	ALUController_c : ALUController port map(
-		Instruction => ,
+		Instruction => IDEXInstructionOutput,
 		ALUOp => ALUControllerALUOp
-		);
-	EXAddr16 : Adder16 port map(
-		InputA => ,
-		InputB => ,
+	);
+	EXAddr16 : Adder16 port map (
+		InputA => IDEXPCOutput,
+		InputB => IDEXExtenedNumberOutput,
 		Output => EXAddr16Output
-		);
-	EXMuxT16_1 : MuxT16 port map(
+	);
+	EXMuxT16_1 : MuxT16 port map (
 		Control => ForwardUnitForwardA,
-		InputA => ,
+		InputA => IDEXRegDataAOutput,
 		InputB => EXMEMEXResultOutput,
 		InputC => WBMux16Output,
 		Output => EXMuxT16_1Output
-		);
-	EXMuxT16_2 : MuxT16 port map(
+	);
+	EXMuxT16_2 : MuxT16 port map (
 		Control => ForwardUnitForwardB,
-		InputA => ,
+		InputA => IDEXRegDataBOutput,
 		InputB => EXMEMEXResultOutput,
 		InputC => WBMux16Output,
 		Output => EXMuxT16_2Output
-		);
-	EXMux16_c : Mux16 port map(
-		Control => ,
+	);
+	EXMux16_c : Mux16 port map (
+		Control => IDEXALUSrcOutput,
 		InputA => EXMuxT16_2Output,
-		InputB => ,
+		InputB => IDEXExtenedNumberOutput,
 		Output => EXMux16Output
-		);
-	BranchSelector_c : BranchSelector port map(
-		BranchType => ,
-		Jump => ,
+	);
+	BranchSelector_c : BranchSelector port map (
+		BranchType => IDEXBranchTypeOutput,
+		Jump => IDEXJumpOutput,
 		Input => EXMuxT16_1Output,
 		BranchSelect => BranchSelectorBranchSelect,
 		IFIDClear => BranchSelectorIFIDClear
-		);
-	ForwardUnit_c : ForwardUnit port map(
+	);
+	ForwardUnit_c : ForwardUnit port map (
 		EXMEMRegWrite => EXMEMRegWriteOutput,
 		MEMWBRegWrite => MEMWBRegWriteOutput,
 		EXMEMRegDest => EXMEMRegDestOutput,
 		MEMWBRegDest => MEMWBRegDestOutput,
-		IDEXRegSrcA=> ,
-		IDEXRegSrcB=> ,
+		IDEXRegSrcA=> IDEXRegSrcAOutput,
+		IDEXRegSrcB=> IDEXRegSrcBOutput,
 		ForwardA => ForwardUnitForwardA,
 		ForwardB => ForwardUnitForwardB
-		);
-	MEMWBReg_c : MEMWBReg port map(
-		Clock => Clock_4x,
-		Reset => Rst,
+	);
+	MEMWBReg_c : MEMWBReg port map (
+		Clock => IOBridgeCPUClock,
+		Reset => Reset,
 		WriteEN => '1',
 
 		RegWriteInput => EXMEMRegWriteOutput,
 		MemToRegInput => EXMEMMemToRegOutput,
 		RegDestInput => EXMEMRegDestOutput,
 		EXResultInput => EXMEMEXResultOutput,
-		MemDataInput => MemoryDataOutput,
+		MemDataInput => IOBridgeDataOutput2,
 
 		RegWriteOutput => MEMWBRegWriteOutput,
 		MemToRegOutput => MEMWBMemToRegOutput,
 		RegDestOutput => MEMWBRegDestOutput,
 		EXResultOutput => MEMWBEXResultOutput,
 		MemDataOutput => MEMWBMemDataOutput
-		);
-	WBMux16 : Mux16 port map(
+	);
+	WBMux16 : Mux16 port map (
 		Control => MEMWBMemToRegOutput,
 		InputA => MEMWBEXResultOutput,
 		InputB => MEMWBMemDataOutput,
 		Output => WBMux16Output
-		);
+	);
+	-- IOBridge
+	IOBridge_c : IOBridge port map (
+		Clock => Clock,
+		Reset => Reset,
+		CPUClock => IOBridgeCPUClock,
 
+		Address1 => IFPCRegOutput,
+		DataOutput1 => IOBridgeDataOutput1,
+
+		Address2 => EXMEMEXResultOutput,
+		DataInput1 => EXMEMRegDataBOutput,
+		DataOutput2 => IOBridgeDataOutput2,
+
+		MemoryAddress => ,
+		MemoryDatabus => ,
+		MemoryEN => ,
+		MemoryOE => ,
+		MemoryRE => ,
+
+		RAM1EN => ,
+
+		SerialWRN => ,
+		SerialRDN => ,
+		SerialDATA_READY => ,
+		SerialTSRE => ,
+		SerialTBRE => ,
+		SerialDatabus => 
+	);
 end Behavioral;
-
-
 

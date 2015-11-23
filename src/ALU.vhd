@@ -16,14 +16,15 @@ architecture arch of ALU is
 signal OutputTmp : std_logic_vector (15 downto 0);
 begin
 	Output <= OutputTmp;
-	with ALUop select OutputTmp <=
-		InputA + InputB when "000",
-		InputA - InputB when "001",
-		InputA and InputB when "010",
-		to_stdlogicvector(to_bitvector(InputA) sll conv_integer(InputB(3 downto 0))) when "011",
-		to_stdlogicvector(to_bitvector(InputA) sra conv_integer(InputB(3 downto 0))) when "100",
-		InputA or InputB when "101",
-		"0000000000000000" when others;
+	ALUop <=InputA + InputB when ALUop = "000" else
+			InputA - InputB when ALUop = "001" else
+			InputA and InputB when ALUop = "010" else
+			to_stdlogicvector(to_bitvector(InputA) sll conv_integer(InputB(3 downto 0))) when ALUop = "011" and InputB /= "0000000000000000" else
+			to_stdlogicvector(to_bitvector(InputA) sll 8) when ALUop = "011" and InputB = "0000000000000000" else
+			to_stdlogicvector(to_bitvector(InputA) sra conv_integer(InputB(3 downto 0))) when ALUop = "100" and InputB /= "0000000000000000" else
+			to_stdlogicvector(to_bitvector(InputA) sra 8) when ALUop = "100" and InputB = "0000000000000000" else
+			InputA or InputB when ALUop = "101" else
+			"0000000000000000";
 	ALUFlags(1) <= 	'1' when OutputTmp < 0 else
 				'0';
 	ALUFlags(0) <= 	'1' when OutputTmp = 0 else

@@ -457,7 +457,7 @@ begin
 
 	Reset <= not Rst;
 	-- CPUClock <= Clock;
-	LED <= EXMuxF16Output;
+	LED <= IOBridgeDataOutput1;
 
 	-- IF
 	IFMuxT16_c : MuxT16 port map (
@@ -491,8 +491,8 @@ begin
 		Clock => CPUClock,
 		Reset => IFIDReset,
 		WriteEN => HazardUnitIFIDWrite,
-		-- InstructionInput => IOBridgeDataOutput1,
-		InstructionInput => SW,
+		InstructionInput => IOBridgeDataOutput1,
+		--InstructionInput => SW,
 		PCInput => IFAdder16Output_1,
 		RPCInput => IFAdder16Output_2,
 		InstructionOutput => IFIDInstructionOutput,

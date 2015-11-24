@@ -2,7 +2,7 @@ _xmsgs/
 iseconfig/
 xst/
 _ngo/
-planAhead_run_1/
+planAhead_run_*/
 xlnx_auto_0_xdb/
 .Xil/
 *.html

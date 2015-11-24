@@ -83,7 +83,8 @@ begin
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_WRITE) else
 				not WriteEN when state=DATA_WRITE else
 				'1';
-	MemoryOE <= not ReadEN when (state=INS_READ or state=DATA_READ) else
+	MemoryOE <= not ReadEN when state=DATA_READ else
+				'0' when state=INS_READ else
 				'1';
 
 	MemoryBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE) else

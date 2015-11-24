@@ -1,5 +1,4 @@
 
-# PlanAhead Generated physical constraints 
 
 NET "LED[0]" LOC = D10;
 NET "LED[1]" LOC = E10;

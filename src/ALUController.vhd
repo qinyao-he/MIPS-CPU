@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    22:33:06 11/19/2015 
--- Design Name: 
--- Module Name:    ALUController - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    22:33:06 11/19/2015
+-- Design Name:
+-- Module Name:    ALUController - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -22,7 +22,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_signed.all;
 
 entity ALUController is
-	port ( 
+	port (
 		Instruction: in std_logic_vector(15 downto 0);
 		ALUOp: out std_logic_vector(2 downto 0)
 	);
@@ -38,7 +38,7 @@ begin
 	first8	<=	Instruction(15 downto  8);
 	last2	<=	Instruction(1  downto  0);
 	last5	<=	Instruction(4  downto  0);
-	ALUOp	<=	"000"	when first5 = "01001" -- ADDIU ADD
+	ALUOp	<=	"000"	when first5 = "01001" -- ADDIU
 						or first5 = "01000"  -- ADDIU3
 						or (first5 = "11100" and last2 = "01") -- ADDU
 						or first5 = "10011" -- LW

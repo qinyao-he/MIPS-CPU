@@ -41,7 +41,6 @@ entity EXMEMReg is
 		RegDestInput : in std_logic_vector(3 downto 0);
 		MemToRegInput : in std_logic;
 		EXResultInput : in std_logic_vector(15 downto 0);
-		RegDataAInput : in std_logic_vector(15 downto 0);
 		RegDataBInput : in std_logic_vector(15 downto 0);
 
 		RegWriteOutput : out std_logic;
@@ -50,7 +49,6 @@ entity EXMEMReg is
 		RegDestOutput : out std_logic_vector(3 downto 0);
 		MemToRegOutput : out std_logic;
 		EXResultOutput : out std_logic_vector(15 downto 0);
-		RegDataAOutput : out std_logic_vector(15 downto 0);
 		RegDataBOutput : out std_logic_vector(15 downto 0)
 	);
 end EXMEMReg;
@@ -62,7 +60,6 @@ architecture RTL of EXMEMReg is
 	signal RegDestReg : std_logic_vector(3 downto 0);
 	signal MemToRegReg : std_logic;
 	signal EXResultReg : std_logic_vector(15 downto 0);
-	signal RegDataAReg : std_logic_vector(15 downto 0);
 	signal RegDataBReg : std_logic_vector(15 downto 0);
 begin
 
@@ -72,7 +69,6 @@ begin
 	RegDestOutput <= RegDestReg;
 	MemToRegOutput <= MemToRegReg;
 	EXResultOutput <= EXResultReg;
-	RegDataAOutput <= RegDataAReg;
 	RegDataBOutput <= RegDataBReg;
 
 	process(Clock, Reset)
@@ -84,7 +80,6 @@ begin
 			RegDestReg <= (others => '0');
 			MemToRegReg <= '0';
 			EXResultReg <= (others => '0');
-			RegDataAReg <= (others => '0');
 			RegDataBReg <= (others => '0');
 		elsif rising_edge(Clock) then
 			if WriteEN = '1' then
@@ -94,7 +89,6 @@ begin
 				RegDestReg <= RegDestInput;
 				MemToRegReg <= MemToRegInput;
 				EXResultReg <= EXResultInput;
-				RegDataAReg <= RegDataAInput;
 				RegDataBReg <= RegDataBInput;
 			end if;
 		end if;

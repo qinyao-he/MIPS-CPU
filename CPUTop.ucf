@@ -16,14 +16,6 @@ NET "LED[6]" LOC = E11;
 NET "LED[5]" LOC = D11;
 NET "LED[4]" LOC = C11;
 NET "LED[3]" LOC = B11;
-NET "Ram1Data[15]" LOC = M14;
-NET "Ram1Data[14]" LOC = M13;
-NET "Ram1Data[13]" LOC = L18;
-NET "Ram1Data[12]" LOC = L17;
-NET "Ram1Data[11]" LOC = L16;
-NET "Ram1Data[10]" LOC = L15;
-NET "Ram1Data[9]" LOC = K15;
-NET "Ram1Data[8]" LOC = K14;
 NET "Ram1Data[7]" LOC = K13;
 NET "Ram1Data[6]" LOC = K12;
 NET "Ram1Data[5]" LOC = J17;
@@ -94,7 +86,7 @@ NET "SerialTBRE" LOC = D14;
 NET "SerialTSRE" LOC = N9;
 NET "SerialWRN" LOC = U5;
 
-# PlanAhead Generated physical constraints 
+# PlanAhead Generated physical constraints
 
 NET "DYP0[6]" LOC = C7;
 NET "DYP0[5]" LOC = D7;

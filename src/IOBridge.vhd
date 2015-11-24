@@ -103,20 +103,13 @@ begin
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTBRE and SerialTSRE);
 
 	process (Clock, Reset)
-		variable cnt : std_logic_vector(1 downto 0);
 	begin
 		if Reset = '1' then
 			state <= INIT;
-			cnt := "00";
 		elsif falling_edge(Clock) then
 			case state is
 				when INIT =>
-					if cnt = "10" then
-						state <= DATA_WRITE;
-					else
-						state <= INIT;
-						cnt := cnt + 1;
-					end if;
+					state <= DATA_WRITE;
 				when DATA_WRITE =>
 					state <= INS_READ;
 				when INS_READ =>
@@ -143,8 +136,9 @@ begin
 	begin
 		if Reset = '1' then
 			cnt := "00";
+			CPUClock <= '1';
 		elsif rising_edge(Clock) then
-			CPUClock <= cnt(1);
+			CPUClock <= not cnt(1);
 			cnt := cnt + 1;
 		end if;
 	end process;

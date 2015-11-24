@@ -93,3 +93,20 @@ NET "SerialRDN" LOC = C14;
 NET "SerialTBRE" LOC = D14;
 NET "SerialTSRE" LOC = N9;
 NET "SerialWRN" LOC = U5;
+
+# PlanAhead Generated physical constraints 
+
+NET "DYP0[6]" LOC = C7;
+NET "DYP0[5]" LOC = D7;
+NET "DYP0[4]" LOC = E7;
+NET "DYP0[3]" LOC = F7;
+NET "DYP0[2]" LOC = A8;
+NET "DYP0[1]" LOC = E8;
+NET "DYP0[0]" LOC = F8;
+NET "DYP1[6]" LOC = C9;
+NET "DYP1[5]" LOC = D9;
+NET "DYP1[4]" LOC = E9;
+NET "DYP1[3]" LOC = F9;
+NET "DYP1[2]" LOC = G9;
+NET "DYP1[1]" LOC = A10;
+NET "DYP1[0]" LOC = B10;

@@ -5,6 +5,7 @@ _ngo/
 planAhead_run_*/
 xlnx_auto_0_xdb/
 .Xil/
+
 *.html
 *.gise
 *.cmd_log
@@ -42,3 +43,6 @@ xlnx_auto_0_xdb/
 *.drc
 *.tcl
 *.log
+*.debug
+
+Assembleler.exe

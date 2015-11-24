@@ -1,0 +1,13 @@
+START:
+	; R0用来保存每次需要输出的字符
+	LI		R0	0X20
+	LI		R1	0XBF
+	SLL		R1	R1	0X0
+LOOP_START:
+	SW		R1	R0	0X0
+	ADDIU	R0	0X1
+	; 到大于0x7E的时候结束
+	LI		R2	0X7F
+	CMP		R0	R2
+	BTNEZ	LOOP_START
+	NOP

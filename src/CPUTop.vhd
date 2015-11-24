@@ -50,13 +50,22 @@ entity CPUTop is
 		SerialTBRE : in std_logic;
 
 		SW : in std_logic_vector(15 downto 0);
-		LED : out std_logic_vector (15 downto 0)
+		LED : out std_logic_vector (15 downto 0);
+		DYP0 : out std_logic_vector (6 downto 0);
+		DYP1 : out std_logic_vector (6 downto 0)
 	);
 end CPUTop;
 
 architecture Behavioral of CPUTop is
 
 -- components
+
+component Seg7
+	port (
+		key : in std_logic_vector(3 downto 0);
+		display : out std_logic_vector(6 downto 0)
+	);
+end component;
 
 component Adder16
 	port (
@@ -453,11 +462,21 @@ signal IOBridgeSerialRDN : std_logic;
 signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0);
 -- Readback
 signal IFIDReset, IDEXReset : std_logic;
+
+signal key_0, key_1 : std_logic_vector(3 downto 0);
+
 begin
 
 	Reset <= not Rst;
 	-- CPUClock <= Clock;
-	LED <= IOBridgeDataOutput1;
+	--LED <= IFIDInstructionOutput;
+	LED <= EXMuxT16_1Output(0) & "00000000000" & IDEXBranchTypeOutput & BranchSelectorBranchSelect;
+	--LED <= EXMuxF16Output;
+
+	Seg7_0 : Seg7 port map(key_0, DYP0);
+	Seg7_1 : Seg7 port map(key_1, DYP1);
+	key_1 <= IFPCRegOutput(3 downto 0);
+	key_0 <= IFPCRegOutput(7 downto 4);
 
 	-- IF
 	IFMuxT16_c : MuxT16 port map (

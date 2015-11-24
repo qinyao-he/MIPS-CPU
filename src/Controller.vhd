@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    00:47:43 11/22/2015 
--- Design Name: 
--- Module Name:    Controller - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    00:47:43 11/22/2015
+-- Design Name:
+-- Module Name:    Controller - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -81,11 +81,11 @@ begin
 	RegWrite <= '0' when first5 = "00010" -- B
 					or first5 = "00100" -- BEQZ
 					or first5 = "00101" -- BNEZ
-					or first8 = "01100000"
-					or first8 = "01100001"
+					or first8 = "01100000" -- BTEQZ
+					or first8 = "01100001" -- BTNEZ
 					or (first5 = "11101" and last8 = "00000000") -- JR
 					or Instruction = "1110100000100000" -- JRRA
-					or Instruction = "0000100000000000" -- NOP 
+					or Instruction = "0000100000000000" -- NOP
 					or first5 = "11011" -- SW
 					or first5 = "11010" -- SW_SP
 					else
@@ -106,10 +106,10 @@ begin
 	BranchType	<= 	"01"	when first5 = "00010" -- B
 	else
 					"10"	when first5 = "00100" -- BEQZ
-							or last8 = "01100000" -- BTNEZ
+							or first8 = "01100000" -- BTEQZ
 							else
 					"11"	when first5 = "00101" -- BNEZ
-							or last8 = "01100001" -- BTNEZ
+							or first8 = "01100001" -- BTNEZ
 							else
 					"00";
 	RegSrcA <= 	Raddr10to8 	when first5 = "01001" -- ADDIU
@@ -132,8 +132,8 @@ begin
 							or first5 = "10010" -- LW_SP
 							or first5 = "11010" -- SW_SP
 							else
-				"0101"		when last8 = "01100000" -- BTNEZ
-							or last8 = "01100001" -- BTNEZ
+				"0101"		when first8 = "01100000" -- BTEQZ
+							or first8 = "01100001" -- BTNEZ
 							else
 				"0100"		when Instruction = "1110100000100000" -- JRRA
 							else

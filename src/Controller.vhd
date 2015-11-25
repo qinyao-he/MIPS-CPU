@@ -76,8 +76,6 @@ begin
 							or (first5 = "01111" and last5 = "00000") -- MOVE
 							or (first5 = "11110" and last8 = "00000001") -- MTIH
 							or (first8 = "01100100" and last5 = "00000") -- MTSP
-							or first5 = "11011" -- SW
-							or first5 = "11010" -- SW_SP
 							else
 						"00";
 	RegWrite <= '1' when first5 = "01001" -- ADDIU

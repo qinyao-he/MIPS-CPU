@@ -81,7 +81,7 @@ begin
 	begin
 		if Reset = '1' then
 			regs <= (others => (others => '0'));
-		elsif rising_edge(Clock) then
+		elsif falling_edge(Clock) then
 			if Clear = '1' then
 				regs <= (others => (others => '0'));
 			elsif WriteEN = '1' then

@@ -516,7 +516,7 @@ begin
 		Control => BranchSelectorBranchSelect,
 		InputA => IFAdder16Output_1,
 		InputB => EXAddr16Output,
-		InputC => EXMux16Output,
+		InputC => EXMuxT16_1Output,
 		Output => IFMuxT16Output
 	);
 	IFPCReg_c : PCReg port map (

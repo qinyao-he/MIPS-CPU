@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer: 何钦尧
--- 
--- Create Date:    00:40:37 11/22/2015 
--- Design Name: 
--- Module Name:    IDEXReg - RTL 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
 --
--- Dependencies: 
+-- Create Date:    00:40:37 11/22/2015
+-- Design Name:
+-- Module Name:    IDEXReg - RTL
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -33,6 +33,7 @@ entity IDEXReg is
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 
 		PCInput : in std_logic_vector(15 downto 0);
@@ -113,8 +114,26 @@ begin
 
 	process(Clock)
 	begin
-		if rising_edge(Clock) then
-			if Reset = '1' then
+		if Reset = '1' then
+			PCReg <= (others => '0');
+			TTypeReg <= '0';
+			EXResultSelectReg <= (others => '0');
+			RegWriteReg <= '0';
+			MemReadReg <= '0';
+			MemWriteReg <= '0';
+			InstructionReg <= (others => '0');
+			BranchTypeReg <= (others => '0');
+			JumpReg <= '0';
+			RegSrcAReg <= (others => '0');
+			RegSrcBReg <= (others => '0');
+			RegDestReg <= (others => '0');
+			ALUSrcReg <= '0';
+			MemToRegReg <= '0';
+			RegDataAReg <= (others => '0');
+			RegDataBReg <= (others => '0');
+			ExtendedNumberReg <= (others => '0');
+		elsif rising_edge(Clock) then
+			if Clear = '1' then
 				PCReg <= (others => '0');
 				TTypeReg <= '0';
 				EXResultSelectReg <= (others => '0');

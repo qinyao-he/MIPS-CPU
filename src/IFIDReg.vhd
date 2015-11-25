@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer: 何钦尧
--- 
--- Create Date:    00:30:22 11/22/2015 
--- Design Name: 
--- Module Name:    IFIDReg - RTL 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
 --
--- Dependencies: 
+-- Create Date:    00:30:22 11/22/2015
+-- Design Name:
+-- Module Name:    IFIDReg - RTL
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -33,6 +33,7 @@ entity IFIDReg is
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 
 		InstructionInput : in std_logic_vector(15 downto 0);
@@ -57,8 +58,12 @@ begin
 
 	process(Clock)
 	begin
-		if rising_edge(Clock) then
-			if Reset = '1' then
+		if Reset = '1' then
+			InstructionReg <= (others => '0');
+			PCReg <= (others => '0');
+			RPCReg <= (others => '0');
+		elsif rising_edge(Clock) then
+			if Clear = '1' then
 				InstructionReg <= (others => '0');
 				PCReg <= (others => '0');
 				RPCReg <= (others => '0');

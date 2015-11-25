@@ -34,6 +34,7 @@ entity RegisterFile is
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 		ReadRegA : in std_logic_vector(3 downto 0);
 		ReadRegB : in std_logic_vector(3 downto 0);
@@ -78,8 +79,10 @@ begin
 
 	process (Clock)
 	begin
-		if rising_edge(Clock) then
-			if Reset = '1' then
+		if Reset = '1' then
+			regs <= (others => (others => '0'));
+		elsif rising_edge(Clock) then
+			if Clear = '1' then
 				regs <= (others => (others => '0'));
 			elsif WriteEN = '1' then
 				regs(to_integer(unsigned(WriteReg))) <= WriteData;

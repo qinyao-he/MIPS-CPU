@@ -124,6 +124,7 @@ component EXMEMReg
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 		RegWriteInput : in std_logic;
 		MemReadInput : in std_logic;
@@ -178,6 +179,7 @@ component IDEXReg
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 
 		PCInput : in std_logic_vector(15 downto 0);
@@ -222,6 +224,7 @@ component IFIDReg
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 		InstructionInput : in std_logic_vector(15 downto 0);
 		PCInput : in std_logic_vector(15 downto 0);
@@ -269,6 +272,7 @@ component MEMWBReg
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 
 		RegWriteInput : in std_logic;
@@ -319,6 +323,7 @@ component PCReg
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 		Input : in std_logic_vector(15 downto 0);
 		Output : out std_logic_vector(15 downto 0)
@@ -329,6 +334,7 @@ component RegisterFile
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
+		Clear : in std_logic;
 		WriteEN : in std_logic;
 		ReadRegA : in std_logic_vector(3 downto 0);
 		ReadRegB : in std_logic_vector(3 downto 0);
@@ -446,11 +452,7 @@ signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 signal CPUClock : std_logic;
 signal IOBridgeDataOutput1 : std_logic_vector (15 downto 0);
 signal IOBridgeDataOutput2 : std_logic_vector (15 downto 0);
-
 signal IOBridgeRAM1EN : std_logic;
-
--- Readback
-signal IFIDReset, IDEXReset : std_logic;
 
 signal key_0, key_1 : std_logic_vector(3 downto 0);
 
@@ -463,7 +465,7 @@ begin
 	--LED <= SerialTSRE & SerialTBRE & SerialDATA_READY & "00000" & Ram1Data(7 downto 0);
 	--LED <= "000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0) & MEMWBEXResultOutput(0) & WBMux16Output(0);
 	--LED <= "00000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0);
-	LED <= "000000000000000" & MEMWBMemToRegOutput when SW = "0000000000000000" else
+	LED <=	EXMuxF16Output when SW = "0000000000000000" else
 			MEMWBMemDataOutput when SW = "0000000000000001" else
 			MEMWBEXResultOutput when SW = "0000000000000010" else
 			WBMux16Output when SW = "0000000000000011" else
@@ -472,6 +474,8 @@ begin
 			"000000000000000" & IDEXMemToRegOutput when SW = "0000000000000110" else
 			"000000000000000" & EXMEMMemToRegOutput when SW = "0000000000000111" else
 			"000000000000000" & HazardUnitIDEXClear when SW = "0000000000001000" else
+			"000000000000000" & IDControllerRegWrite when SW = "0000000000001001" else
+			"000000000000000" & EXMEMRegWriteOutput when SW = "0000000000001010" else
 			"0000000000000000";
 
 	Seg7_0 : Seg7 port map(key_0, DYP0);
@@ -490,6 +494,7 @@ begin
 	IFPCReg_c : PCReg port map (
 		Clock => CPUClock,
 		Reset => Reset,
+		Clear => '0',
 		WriteEN => HazardUnitPCWrite,
 		Input => IFMuxT16Output,
 		Output => IFPCRegOutput
@@ -506,10 +511,10 @@ begin
 	);
 
 	-- IFID
-	IFIDReset <= BranchSelectorIFIDClear or Reset;
 	IFIDReg_c : IFIDReg port map (
 		Clock => CPUClock,
-		Reset => IFIDReset,
+		Reset => Reset,
+		Clear => BranchSelectorIFIDClear,
 		WriteEN => HazardUnitIFIDWrite,
 		InstructionInput => IOBridgeDataOutput1,
 		--InstructionInput => SW,
@@ -539,6 +544,7 @@ begin
 	RegisterFile_c : RegisterFile port map (
 		Clock => CPUClock,
 		Reset => Reset,
+		Clear => '0',
 		WriteEN => MEMWBRegWriteOutput,
 		ReadRegA => IDControllerRegSrcA,
 		ReadRegB => IDControllerRegSrcB,
@@ -564,10 +570,10 @@ begin
 		IDEXClear => HazardUnitIDEXClear
 	);
 	-- IDEX
-	IDEXReset <= HazardUnitIDEXClear or Reset;
 	IDEXReg_c : IDEXReg port map (
 		Clock => CPUClock,
-		Reset => IDEXReset,
+		Reset => Reset,
+		Clear => HazardUnitIDEXClear,
 		WriteEN => '1',
 
 		PCInput => IFIDPCOutput,
@@ -610,6 +616,7 @@ begin
 	EXMEMReg_c : EXMEMReg port map (
 		Clock => CPUClock,
 		Reset => Reset,
+		Clear => '0',
 		WriteEN => '1',
 		RegWriteInput => IDEXRegWriteOutput,
 		MemReadInput => IDEXMemReadOutput,
@@ -695,6 +702,7 @@ begin
 	MEMWBReg_c : MEMWBReg port map (
 		Clock => CPUClock,
 		Reset => Reset,
+		Clear => '0',
 		WriteEN => '1',
 
 		RegWriteInput => EXMEMRegWriteOutput,

@@ -471,6 +471,7 @@ begin
 			"000000000000000" & IDControllerMemToReg when SW = "0000000000000101" else
 			"000000000000000" & IDEXMemToRegOutput when SW = "0000000000000110" else
 			"000000000000000" & EXMEMMemToRegOutput when SW = "0000000000000111" else
+			"000000000000000" & HazardUnitIDEXClear when SW = "0000000000001000" else
 			"0000000000000000";
 
 	Seg7_0 : Seg7 port map(key_0, DYP0);

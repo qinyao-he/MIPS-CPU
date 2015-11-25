@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company:
+-- Company: 
 -- Engineer: 何钦尧
+-- 
+-- Create Date:    01:06:00 11/22/2015 
+-- Design Name: 
+-- Module Name:    EXMEMReg - RTL 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
 --
--- Create Date:    01:06:00 11/22/2015
--- Design Name:
--- Module Name:    EXMEMReg - RTL
--- Project Name:
--- Target Devices:
--- Tool versions:
--- Description:
+-- Dependencies: 
 --
--- Dependencies:
---
--- Revision:
+-- Revision: 
 -- Revision 0.01 - File Created
--- Additional Comments:
+-- Additional Comments: 
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -71,18 +71,18 @@ begin
 	EXResultOutput <= EXResultReg;
 	RegDataBOutput <= RegDataBReg;
 
-	process(Clock, Reset)
+	process(Clock)
 	begin
-		if Reset = '1' then
-			RegWriteReg <= '0';
-			MemReadReg <= '0';
-			MemWriteReg <= '0';
-			RegDestReg <= (others => '0');
-			MemToRegReg <= '0';
-			EXResultReg <= (others => '0');
-			RegDataBReg <= (others => '0');
-		elsif rising_edge(Clock) then
-			if WriteEN = '1' then
+		if rising_edge(Clock) then
+			if Reset = '1' then
+				RegWriteReg <= '0';
+				MemReadReg <= '0';
+				MemWriteReg <= '0';
+				RegDestReg <= (others => '0');
+				MemToRegReg <= '0';
+				EXResultReg <= (others => '0');
+				RegDataBReg <= (others => '0');
+			elsif WriteEN = '1' then
 				RegWriteReg <= RegWriteInput;
 				MemReadReg <= MemReadInput;
 				MemWriteReg <= MemWriteInput;
@@ -95,4 +95,3 @@ begin
 	end process;
 
 end RTL;
-

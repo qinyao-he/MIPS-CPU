@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company:
+-- Company: 
 -- Engineer: 何钦尧
+-- 
+-- Create Date:    19:09:48 11/19/2015 
+-- Design Name: 
+-- Module Name:    PCReg - RTL 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
 --
--- Create Date:    19:09:48 11/19/2015
--- Design Name:
--- Module Name:    PCReg - RTL
--- Project Name:
--- Target Devices:
--- Tool versions:
--- Description:
+-- Dependencies: 
 --
--- Dependencies:
---
--- Revision:
+-- Revision: 
 -- Revision 0.01 - File Created
--- Additional Comments:
+-- Additional Comments: 
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -42,15 +42,15 @@ end PCReg;
 architecture RTL of PCReg is
 	signal PCReg : std_logic_vector(15 downto 0);
 begin
-
+	
 	Output <= PCReg;
 
-	process(Clock, Reset)
+	process(Clock)
 	begin
-		if Reset = '1' then
-			PCReg <= (others => '0');
-		elsif rising_edge(Clock) then
-			if WriteEN = '1' then
+		if rising_edge(Clock) then
+			if Reset = '1' then
+				PCReg <= (others => '0');
+			elsif WriteEN = '1' then
 				PCReg <= Input;
 			end if;
 		end if;

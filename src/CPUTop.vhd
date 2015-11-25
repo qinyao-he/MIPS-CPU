@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Company:
--- Engineer:
+-- Engineer: 黄科 王凯
 --
 -- Create Date:    00:14:58 11/24/2015
 -- Design Name:
@@ -35,7 +35,7 @@ entity CPUTop is
 		Rst : in std_logic;
 
 		Ram1EN : out std_logic;
-		Ram1Data : inout std_logic_vector (15 downto 0);
+		Ram1Data : inout std_logic_vector (7 downto 0);
 
 		Ram2Addr : out std_logic_vector(17 downto 0);
 		Ram2Data : inout std_logic_vector(15 downto 0);
@@ -50,13 +50,22 @@ entity CPUTop is
 		SerialTBRE : in std_logic;
 
 		SW : in std_logic_vector(15 downto 0);
-		LED : out std_logic_vector (15 downto 0)
+		LED : out std_logic_vector (15 downto 0);
+		DYP0 : out std_logic_vector (6 downto 0);
+		DYP1 : out std_logic_vector (6 downto 0)
 	);
 end CPUTop;
 
 architecture Behavioral of CPUTop is
 
 -- components
+
+component Seg7
+	port (
+		key : in std_logic_vector(3 downto 0);
+		display : out std_logic_vector(6 downto 0)
+	);
+end component;
 
 component Adder16
 	port (
@@ -122,7 +131,6 @@ component EXMEMReg
 		RegDestInput : in std_logic_vector(3 downto 0);
 		MemToRegInput : in std_logic;
 		EXResultInput : in std_logic_vector(15 downto 0);
-		RegDataAInput : in std_logic_vector(15 downto 0);
 		RegDataBInput : in std_logic_vector(15 downto 0);
 		RegWriteOutput : out std_logic;
 		MemReadOutput : out std_logic;
@@ -130,7 +138,6 @@ component EXMEMReg
 		RegDestOutput : out std_logic_vector(3 downto 0);
 		MemToRegOutput : out std_logic;
 		EXResultOutput : out std_logic_vector(15 downto 0);
-		RegDataAOutput : out std_logic_vector(15 downto 0);
 		RegDataBOutput : out std_logic_vector(15 downto 0)
 	);
 end component; -- EXMEMReg
@@ -373,7 +380,7 @@ signal EXMEMMemWriteOutput : std_logic;
 signal EXMEMMemToRegOutput : std_logic;
 signal EXMEMRegDestOutput : std_logic_vector(3 downto 0);
 signal EXMEMEXResultOutput : std_logic_vector(15 downto 0);
-signal EXMEMRegDataAOutput : std_logic_vector(15 downto 0);
+--signal EXMEMRegDataAOutput : std_logic_vector(15 downto 0);
 signal EXMEMRegDataBOutput : std_logic_vector(15 downto 0);
 signal EXMuxF16Output : std_logic_vector(15 downto 0);
 signal ALUOutput : std_logic_vector(15 downto 0);
@@ -440,24 +447,36 @@ signal CPUClock : std_logic;
 signal IOBridgeDataOutput1 : std_logic_vector (15 downto 0);
 signal IOBridgeDataOutput2 : std_logic_vector (15 downto 0);
 
-signal IOBridgeMemoryAddress : std_logic_vector (17 downto 0);
-signal IOBridgeMemoryDatabus : std_logic_vector(15 downto 0);
-signal IOBridgeMemoryEN : std_logic;
-signal IOBridgeMemoryOE : std_logic;
-signal IOBridgeMemoryRE : std_logic;
-
 signal IOBridgeRAM1EN : std_logic;
 
-signal IOBridgeSerialWRN : std_logic;
-signal IOBridgeSerialRDN : std_logic;
-signal IOBridgeSerialDatabus : std_logic_vector(7 downto 0);
 -- Readback
 signal IFIDReset, IDEXReset : std_logic;
+
+signal key_0, key_1 : std_logic_vector(3 downto 0);
+
 begin
 
 	Reset <= not Rst;
-	CPUClock <= Clock;
-	LED <= EXMuxF16Output;
+	-- CPUClock <= Clock;
+	--LED <= IFIDInstructionOutput;
+	--LED <= EXMuxF16Output;
+	--LED <= SerialTSRE & SerialTBRE & SerialDATA_READY & "00000" & Ram1Data(7 downto 0);
+	--LED <= "000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0) & MEMWBEXResultOutput(0) & WBMux16Output(0);
+	--LED <= "00000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0);
+	LED <= "000000000000000" & MEMWBMemToRegOutput when SW = "0000000000000000" else
+			MEMWBMemDataOutput when SW = "0000000000000001" else
+			MEMWBEXResultOutput when SW = "0000000000000010" else
+			WBMux16Output when SW = "0000000000000011" else
+			IOBridgeDataOutput2 when SW = "0000000000000100" else
+			"000000000000000" & IDControllerMemToReg when SW = "0000000000000101" else
+			"000000000000000" & IDEXMemToRegOutput when SW = "0000000000000110" else
+			"000000000000000" & EXMEMMemToRegOutput when SW = "0000000000000111" else
+			"0000000000000000";
+
+	Seg7_0 : Seg7 port map(key_0, DYP0);
+	Seg7_1 : Seg7 port map(key_1, DYP1);
+	key_1 <= IFPCRegOutput(3 downto 0);
+	key_0 <= IFPCRegOutput(7 downto 4);
 
 	-- IF
 	IFMuxT16_c : MuxT16 port map (
@@ -491,8 +510,8 @@ begin
 		Clock => CPUClock,
 		Reset => IFIDReset,
 		WriteEN => HazardUnitIFIDWrite,
-		-- InstructionInput => IOBridgeDataOutput1,
-		InstructionInput => SW,
+		InstructionInput => IOBridgeDataOutput1,
+		--InstructionInput => SW,
 		PCInput => IFAdder16Output_1,
 		RPCInput => IFAdder16Output_2,
 		InstructionOutput => IFIDInstructionOutput,
@@ -597,7 +616,6 @@ begin
 		RegDestInput => IDEXRegDestOutput,
 		MemToRegInput => IDEXMemToRegOutput,
 		EXResultInput => EXMuxF16Output,
-		RegDataAInput => EXMuxT16_1Output,
 		RegDataBInput => EXMuxT16_2Output,
 		RegWriteOutput => EXMEMRegWriteOutput,
 		MemReadOutput => EXMEMMemReadOutput,
@@ -605,7 +623,6 @@ begin
 		RegDestOutput => EXMEMRegDestOutput,
 		MemToRegOutput => EXMEMMemToRegOutput,
 		EXResultOutput => EXMEMEXResultOutput,
-		RegDataAOutput => EXMEMRegDataAOutput,
 		RegDataBOutput => EXMEMRegDataBOutput
 	);
 	EXMuxF16_c : MuxF16 port map (
@@ -701,7 +718,7 @@ begin
 	IOBridge_c : IOBridge port map (
 		Clock => Clock,
 		Reset => Reset,
-		-- CPUClock => CPUClock,
+		CPUClock => CPUClock,
 
 		ReadEN => EXMEMMemReadOutput,
 		WriteEN => EXMEMMemWriteOutput,
@@ -726,7 +743,7 @@ begin
 		SerialDATA_READY => SerialDATA_READY,
 		SerialTSRE => SerialTSRE,
 		SerialTBRE => SerialTBRE,
-		SerialDataBus => Ram1Data(7 downto 0)
+		SerialDataBus => Ram1Data
 	);
 end Behavioral;
 

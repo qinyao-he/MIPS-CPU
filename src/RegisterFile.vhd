@@ -76,12 +76,12 @@ begin
 	--ReadDataA <= regs(to_integer(unsigned(ReadRegA)));
 	--ReadDataB <= regs(to_integer(unsigned(ReadRegB)));
 
-	process (Clock, Reset)
+	process (Clock)
 	begin
-		if Reset = '1' then
-			regs <= (others => (others => '0'));
-		elsif rising_edge(Clock) then
-			if WriteEN = '1' then
+		if rising_edge(Clock) then
+			if Reset = '1' then
+				regs <= (others => (others => '0'));
+			elsif WriteEN = '1' then
 				regs(to_integer(unsigned(WriteReg))) <= WriteData;
 			end if;
 		end if;

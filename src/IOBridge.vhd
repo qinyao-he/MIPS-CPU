@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Company:
--- Engineer: 何钦�
+-- Engineer: 何钦尧
 --
 -- Create Date:    16:09:26 11/23/2015
 -- Design Name:
@@ -83,7 +83,8 @@ begin
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_WRITE) else
 				not WriteEN when state=DATA_WRITE else
 				'1';
-	MemoryOE <= not ReadEN when (state=INS_READ or state=DATA_READ) else
+	MemoryOE <= not ReadEN when state=DATA_READ else
+				'0' when state=INS_READ else
 				'1';
 
 	MemoryBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE) else
@@ -99,7 +100,7 @@ begin
 	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
 	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_WRITE) else '1';
 
-	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTBRE and SerialTSRE);
+	BF01 <= "00000000000000" & SerialDATA_READY & SerialTSRE;
 
 	process (Clock, Reset)
 	begin
@@ -130,11 +131,14 @@ begin
 		end if;
 	end process;
 
-	process (Clock)
-		variable cnt : std_logic_vector(2 downto 0) := "000";
+	process (Clock, Reset)
+		variable cnt : std_logic_vector(1 downto 0) := "00";
 	begin
-		if rising_edge(Clock) then
-			CPUClock <= cnt(2);
+		if Reset = '1' then
+			cnt := "00";
+			CPUClock <= '1';
+		elsif rising_edge(Clock) then
+			CPUClock <= not cnt(1);
 			cnt := cnt + 1;
 		end if;
 	end process;

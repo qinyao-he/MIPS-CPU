@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    00:47:43 11/22/2015 
--- Design Name: 
--- Module Name:    Controller - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer: 王凯
 --
--- Dependencies: 
+-- Create Date:    00:47:43 11/22/2015
+-- Design Name:
+-- Module Name:    Controller - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -64,7 +64,7 @@ begin
 	Raddr7to5  <= '1' & Instruction(7 downto 5);
 	Raddr4to2  <= '1' & Instruction(4 downto 2);
 	TType 	<= 	'1' when (first5 = "11101" and last5 = "00010") -- SLT
-	else
+				else
 				'0';
 	EXResultSelect <= 	"01"when (first5 = "11101" and last5 = "01010") -- CMP
 							or (first5 = "11101" and last5 = "00010") -- SLT
@@ -78,18 +78,28 @@ begin
 							or (first8 = "01100100" and last5 = "00000") -- MTSP
 							else
 						"00";
-	RegWrite <= '0' when first5 = "00010" -- B
-					or first5 = "00100" -- BEQZ
-					or first5 = "00101" -- BNEZ
-					or first8 = "01100000"
-					or first8 = "01100001"
-					or (first5 = "11101" and last8 = "00000000") -- JR
-					or Instruction = "1110100000100000" -- JRRA
-					or Instruction = "0000100000000000" -- NOP 
-					or first5 = "11011" -- SW
-					or first5 = "11010" -- SW_SP
+	RegWrite <= '1' when first5 = "01001" -- ADDIU
+					or first5 = "01000" -- ADDIU3
+					or first8 = "01100011" -- ADDSP
+					or (first5 = "11100" and last2 = "01") -- ADDU
+					or (first5 = "11101" and last5 = "01100") -- AND
+					or (first5 = "11101" and last5 = "01010") --CMP
+					or (first5 = "11101" and last8 = "11000000") -- JALR
+					or first5 = "01101" -- LI
+					or first5 = "10011" --LW
+					or first5 = "10010" -- LW_SP
+					or (first5 = "11110" and last8 = "00000000") -- MFIH
+					or (first5 = "11101" and last8 = "01000000") -- MFPC
+					or (first5 = "01111" and last5 = "00000") -- MOVE
+					or (first5 = "11110" and last8 = "00000001") -- MTIH
+					or (first8 = "01100100" and last5 = "00000") -- MTSP
+					or (first5 = "11101" and last5 = "01101") -- OR
+					or (first5 = "00110" and last2 = "00") -- SLL
+					or (first5 = "11101" and last5 = "00010") -- SLT
+					or (first5 = "00110" and last2 = "11") -- SRA
+					or (first5 = "11100" and last2 = "11") -- SUBU
 					else
-				'1';
+				'0';
 	MemWrite<=	'1' when first5 = "11011" -- SW
 					or first5 = "11010" -- SW_SP
 					else
@@ -104,12 +114,12 @@ begin
 				else
 			'0';
 	BranchType	<= 	"01"	when first5 = "00010" -- B
-	else
+							else
 					"10"	when first5 = "00100" -- BEQZ
-							or last8 = "01100000" -- BTNEZ
+							or first8 = "01100000" -- BTEQZ
 							else
 					"11"	when first5 = "00101" -- BNEZ
-							or last8 = "01100001" -- BTNEZ
+							or first8 = "01100001" -- BTNEZ
 							else
 					"00";
 	RegSrcA <= 	Raddr10to8 	when first5 = "01001" -- ADDIU
@@ -132,8 +142,8 @@ begin
 							or first5 = "10010" -- LW_SP
 							or first5 = "11010" -- SW_SP
 							else
-				"0101"		when last8 = "01100000" -- BTNEZ
-							or last8 = "01100001" -- BTNEZ
+				"0101"		when first8 = "01100000" -- BTEQZ
+							or first8 = "01100001" -- BTNEZ
 							else
 				"0100"		when Instruction = "1110100000100000" -- JRRA
 							else

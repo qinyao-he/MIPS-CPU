@@ -118,10 +118,10 @@ begin
 	BranchType	<= 	"01"	when first5 = "00010" -- B
 	else
 					"10"	when first5 = "00100" -- BEQZ
-							or last8 = "01100000" -- BTNEZ
+							or first8 = "01100000" -- BTNEZ
 							else
 					"11"	when first5 = "00101" -- BNEZ
-							or last8 = "01100001" -- BTNEZ
+							or first8 = "01100001" -- BTNEZ
 							else
 					"00";
 	RegSrcA <= 	Raddr10to8 	when first5 = "01001" -- ADDIU
@@ -146,8 +146,8 @@ begin
 							or first5 = "10010" -- LW_SP
 							or first5 = "11010" -- SW_SP
 							else
-				"0101"		when last8 = "01100000" -- BTNEZ
-							or last8 = "01100001" -- BTNEZ
+				"0101"		when first8 = "01100000" -- BTEQZ
+							or first8 = "01100001" -- BTNEZ
 							else
 				"0100"		when Instruction = "1110100000100000" -- JRRA
 							else

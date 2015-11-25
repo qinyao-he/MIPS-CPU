@@ -507,6 +507,7 @@ begin
 			EXMuxT16_2Output when SW = "0000000000010011" else
 			"000000000000" & EXMEMRegDestOutput when SW = "0000000000100000" else
 			"000000000000" & MEMWBRegDestOutput when SW = "0000000000100001" else
+			EXAddr16Output when SW = "0000000000100010" else
 			"0000000000000000";
 
 	Seg7_0 : Seg7 port map(key_0, DYP0);

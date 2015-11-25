@@ -62,11 +62,11 @@ begin
 											or first5 = "10010" -- LW_SP
 											or first5 = "11010" -- SW_SP
 											or first5 = "00100" -- BEQZ
+											or first5 = "00101" -- BNEZ
 											else
 				SXT(from3to0, Output'length)when first5 = "01000" -- ADDIU3
 											else
 				SXT(from10to0, Output'length)when first5 = "00010" -- B
-											or first5 = "00101" -- BNEZ
 											else
 				SXT(from4to0, Output'length)when first5 = "10011" -- LW
 											or first5 = "11011" -- SW

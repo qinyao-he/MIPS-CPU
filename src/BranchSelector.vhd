@@ -41,9 +41,9 @@ architecture Behavioral of BranchSelector is
 signal BranchSelectTemp: std_logic_vector (1 downto 0);
 begin
 	BranchSelect <= BranchSelectTemp;
-	BranchSelectTemp	<= "01" when (BranchType = "01" and Jump = '0') or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
-						"10" when Jump = '1' else
-						"00"; 
+	BranchSelectTemp	<= 	"01" when (BranchType = "01" and Jump = '0') or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
+							"10" when Jump = '1' else
+							"00"; 
 	IFIDClear <= '1' when BranchSelectTemp /= "00" else
 				 '0';
 end Behavioral;

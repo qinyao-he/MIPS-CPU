@@ -465,17 +465,45 @@ begin
 	--LED <= SerialTSRE & SerialTBRE & SerialDATA_READY & "00000" & Ram1Data(7 downto 0);
 	--LED <= "000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0) & MEMWBEXResultOutput(0) & WBMux16Output(0);
 	--LED <= "00000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0);
+	--LED <=	EXMuxF16Output when SW = "0000000000000000" else
+	--		MEMWBMemDataOutput when SW = "0000000000000001" else
+	--		MEMWBEXResultOutput when SW = "0000000000000010" else
+	--		WBMux16Output when SW = "0000000000000011" else
+	--		IOBridgeDataOutput2 when SW = "0000000000000100" else
+	--		"000000000000000" & IDControllerMemToReg when SW = "0000000000000101" else
+	--		"000000000000000" & IDEXMemToRegOutput when SW = "0000000000000110" else
+	--		"000000000000000" & EXMEMMemToRegOutput when SW = "0000000000000111" else
+	--		"000000000000000" & HazardUnitIDEXClear when SW = "0000000000001000" else
+	--		"000000000000000" & IDControllerRegWrite when SW = "0000000000001001" else
+	--		"000000000000000" & EXMEMRegWriteOutput when SW = "0000000000001010" else
+	--		"00000000000000" & ForwardUnitForwardA when SW = "0000000000001011" else
+	--		"00000000000000" & ForwardUnitForwardB when SW = "0000000000001100" else
+	--		EXMuxT16_1Output when SW = "0000000000001101" else
+	--		EXMuxT16_2Output when SW = "0000000000001110" else
+	--		"0000000000000000";
+
 	LED <=	EXMuxF16Output when SW = "0000000000000000" else
-			MEMWBMemDataOutput when SW = "0000000000000001" else
-			MEMWBEXResultOutput when SW = "0000000000000010" else
-			WBMux16Output when SW = "0000000000000011" else
-			IOBridgeDataOutput2 when SW = "0000000000000100" else
-			"000000000000000" & IDControllerMemToReg when SW = "0000000000000101" else
-			"000000000000000" & IDEXMemToRegOutput when SW = "0000000000000110" else
-			"000000000000000" & EXMEMMemToRegOutput when SW = "0000000000000111" else
-			"000000000000000" & HazardUnitIDEXClear when SW = "0000000000001000" else
-			"000000000000000" & IDControllerRegWrite when SW = "0000000000001001" else
-			"000000000000000" & EXMEMRegWriteOutput when SW = "0000000000001010" else
+			"000000000000000" & IDControllerTType when SW = "0000000000000001" else
+			"00000000000000" & IDControllerEXResultSelect when SW = "0000000000000010" else
+			"000000000000000" & IDControllerRegWrite when SW = "0000000000000011" else
+			"000000000000000" & IDControllerMemRead when SW = "0000000000000100" else
+			"000000000000000" & IDControllerMemWrite when SW = "0000000000000101" else
+			"00000000000000" & IDControllerBranchType when SW = "0000000000000110" else
+			"000000000000000" & IDControllerJump when SW = "0000000000000111" else
+			"000000000000" & IDControllerRegSrcA when SW = "0000000000001000" else
+			"000000000000" & IDControllerRegSrcB when SW = "0000000000001001" else
+			"000000000000" & IDControllerRegDest when SW = "0000000000001010" else
+			"000000000000000" & IDControllerALUSrc when SW = "0000000000001011" else
+			"000000000000000" & IDControllerMemToReg when SW = "0000000000001100" else
+			IDRegisterFileReadDataA when SW = "0000000000001101" else
+			IDRegisterFileReadDataB when SW = "0000000000001110" else
+			IDExtenderOutput when SW = "0000000000001111" else
+			"00000000000000" & ForwardUnitForwardA when SW = "0000000000010000" else
+			"00000000000000" & ForwardUnitForwardB when SW = "0000000000010001" else
+			EXMuxT16_1Output when SW = "0000000000010010" else
+			EXMuxT16_2Output when SW = "0000000000010011" else
+			"000000000000" & EXMEMRegDestOutput when SW = "0000000000100000" else
+			"000000000000" & MEMWBRegDestOutput when SW = "0000000000100001" else
 			"0000000000000000";
 
 	Seg7_0 : Seg7 port map(key_0, DYP0);

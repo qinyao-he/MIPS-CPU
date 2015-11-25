@@ -100,7 +100,7 @@ begin
 	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
 	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_WRITE) else '1';
 
-	BF01 <= "00000000000000" & SerialDATA_READY & SerialTSRE;
+	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTSRE and SerialTBRE);
 
 	process (Clock, Reset)
 	begin

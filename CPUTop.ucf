@@ -74,7 +74,7 @@ NET "SW[3]" LOC = V4;
 NET "SW[2]" LOC = U8;
 NET "SW[1]" LOC = R7;
 NET "SW[0]" LOC = T7;
-NET "Clock" LOC = U9;
+NET "Clock" LOC = B9;
 NET "Ram1EN" LOC = M15;
 NET "Ram2EN" LOC = N10;
 NET "Ram2OE" LOC = R9;
@@ -86,7 +86,6 @@ NET "SerialTBRE" LOC = D14;
 NET "SerialTSRE" LOC = N9;
 NET "SerialWRN" LOC = U5;
 
-# PlanAhead Generated physical constraints
 
 NET "DYP0[6]" LOC = C7;
 NET "DYP0[5]" LOC = D7;
@@ -102,3 +101,8 @@ NET "DYP1[3]" LOC = F9;
 NET "DYP1[2]" LOC = G9;
 NET "DYP1[1]" LOC = A10;
 NET "DYP1[0]" LOC = B10;
+
+# PlanAhead Generated physical constraints 
+
+NET "Clock_50" LOC = B9;
+NET "Clock_M" LOC = U9;

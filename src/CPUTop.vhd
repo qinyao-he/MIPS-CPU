@@ -31,7 +31,8 @@ use ieee.std_logic_1164.all;
 
 entity CPUTop is
 	port (
-		Clock : in std_logic;
+		Clock_50 : in std_logic;
+		Clock_M : in std_logic;
 		Rst : in std_logic;
 
 		Ram1EN : out std_logic;
@@ -368,6 +369,7 @@ end component; -- TSelector
 -- end components
 
 --signal Clock_4x : std_logic;
+signal Clock : std_logic;
 signal Reset : std_logic;
 -- IF
 signal IFMuxT16Output : std_logic_vector (15 downto 0);
@@ -458,6 +460,7 @@ signal key_0, key_1 : std_logic_vector(3 downto 0);
 
 begin
 
+	Clock <= Clock_50 when SW(15) = '1' else Clock_M;
 	Reset <= not Rst;
 	-- CPUClock <= Clock;
 	--LED <= IFIDInstructionOutput;

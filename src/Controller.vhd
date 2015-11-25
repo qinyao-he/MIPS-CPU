@@ -64,7 +64,7 @@ begin
 	Raddr7to5  <= '1' & Instruction(7 downto 5);
 	Raddr4to2  <= '1' & Instruction(4 downto 2);
 	TType 	<= 	'1' when (first5 = "11101" and last5 = "00010") -- SLT
-	else
+					else
 				'0';
 	EXResultSelect <= 	"01"when (first5 = "11101" and last5 = "01010") -- CMP
 							or (first5 = "11101" and last5 = "00010") -- SLT
@@ -116,9 +116,9 @@ begin
 				else
 			'0';
 	BranchType	<= 	"01"	when first5 = "00010" -- B
-	else
+							else
 					"10"	when first5 = "00100" -- BEQZ
-							or first8 = "01100000" -- BTNEZ
+							or first8 = "01100000" -- BTEQZ
 							else
 					"11"	when first5 = "00101" -- BNEZ
 							or first8 = "01100001" -- BTNEZ

@@ -147,7 +147,7 @@ begin
 		end if;
 
 		if rising_edge(Clock) then
-			if Clock = "11110000" then
+			if OutputCode = "11110000" then
 				st <= "0001";
 			else
 				case st is
@@ -163,5 +163,4 @@ begin
 
 	end process;
 end Behavioral ;
-			
-						
+

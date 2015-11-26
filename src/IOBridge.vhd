@@ -65,7 +65,7 @@ entity IOBridge is
 end IOBridge;
 
 architecture Behavioral of IOBridge is
-	type STATE_TYPE is (INIT, DATA_WRITE, INS_READ, DATA_READ);
+	type STATE_TYPE is (INIT, DATA_WRITE, DATA_READ, INS_READ);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -97,7 +97,7 @@ begin
 	MemoryAddress <= "00" & Address1 when state=INS_READ else
 					"00" & Address2;
 
-	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
+	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=INS_READ) else '1';
 	SerialWRN <= not WriteEN when (Address2=x"BF00" and (state=DATA_WRITE or state=DATA_READ)) else '1';
 
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTSRE and SerialTBRE);
@@ -114,17 +114,17 @@ begin
 					state <= DATA_READ;
 				when DATA_READ =>
 					state <= INS_READ;
+					BufferData2 <= MemoryDataBus;
+				when INS_READ =>
+					state <= INIT;
+					BufferData1 <= MemoryDataBus;
 					case Address2 is
 						when x"BF00" =>
 							BufferData2 <= "00000000" & SerialDataBus;
 						when x"BF01" =>
 							BufferData2 <= BF01;
 						when others =>
-							BufferData2 <= MemoryDataBus;
 					end case;
-				when INS_READ =>
-					state <= INIT;
-					BufferData1 <= MemoryDataBus;
 				when others =>
 					state <= INIT;
 			end case;

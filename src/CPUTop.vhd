@@ -32,6 +32,7 @@ use UNISIM.VComponents.all;
 entity CPUTop is
 	port (
 		Clock_50 : in std_logic;
+		Clock_11 : in std_logic;
 		Clock_M : in std_logic;
 		Rst : in std_logic;
 
@@ -361,7 +362,8 @@ COMPONENT ClockMultiplier
 		CLKIN_IN : IN std_logic;
 		RST_IN : IN std_logic;
 		CLK0_OUT : OUT std_logic;
-		CLK2X_OUT : OUT std_logic
+		CLK2X_OUT : OUT std_logic;
+		CLKFX_OUT : OUT std_logic
 	);
 END COMPONENT;
 
@@ -461,6 +463,7 @@ signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 
 -- IOBridge
 signal CPUClock : std_logic;
+signal DoubleClock : std_logic;
 signal MultiClock : std_logic;
 signal OriginClock : std_logic;
 signal StdClock : std_logic;
@@ -473,37 +476,16 @@ signal key_0, key_1 : std_logic_vector(3 downto 0);
 begin
 
 	Inst_ClockMultiplier: ClockMultiplier PORT MAP(
-		CLKIN_IN => Clock_50,
+		CLKIN_IN => Clock_11,
 		RST_IN => Reset,
 		CLK0_OUT => OriginClock,
-		CLK2X_OUT => MultiClock
+		CLK2X_OUT => DoubleClock,
+		CLKFX_OUT => MultiClock
 	);
 
 	StdClock <= MultiClock when SW(14) = '1' else OriginClock;
 	Clock <= StdClock when SW(15) = '1' else Clock_M;
 	Reset <= not Rst;
-	-- CPUClock <= Clock;
-	--LED <= IFIDInstructionOutput;
-	--LED <= EXMuxF16Output;
-	--LED <= SerialTSRE & SerialTBRE & SerialDATA_READY & "00000" & Ram1Data(7 downto 0);
-	--LED <= "000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0) & MEMWBEXResultOutput(0) & WBMux16Output(0);
-	--LED <= "00000000000000" & MEMWBMemToRegOutput & MEMWBMemDataOutput(0);
-	--LED <=	EXMuxF16Output when SW = "0000000000000000" else
-	--		MEMWBMemDataOutput when SW = "0000000000000001" else
-	--		MEMWBEXResultOutput when SW = "0000000000000010" else
-	--		WBMux16Output when SW = "0000000000000011" else
-	--		IOBridgeDataOutput2 when SW = "0000000000000100" else
-	--		"000000000000000" & IDControllerMemToReg when SW = "0000000000000101" else
-	--		"000000000000000" & IDEXMemToRegOutput when SW = "0000000000000110" else
-	--		"000000000000000" & EXMEMMemToRegOutput when SW = "0000000000000111" else
-	--		"000000000000000" & HazardUnitIDEXClear when SW = "0000000000001000" else
-	--		"000000000000000" & IDControllerRegWrite when SW = "0000000000001001" else
-	--		"000000000000000" & EXMEMRegWriteOutput when SW = "0000000000001010" else
-	--		"00000000000000" & ForwardUnitForwardA when SW = "0000000000001011" else
-	--		"00000000000000" & ForwardUnitForwardB when SW = "0000000000001100" else
-	--		EXMuxT16_1Output when SW = "0000000000001101" else
-	--		EXMuxT16_2Output when SW = "0000000000001110" else
-	--		"0000000000000000";
 
 	LED <=	EXMuxF16Output when SW = "0000000000000000" else
 			"000000000000000" & IDControllerTType when SW = "0000000000000001" else

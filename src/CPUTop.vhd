@@ -356,6 +356,15 @@ component TSelector
 	);
 end component; -- TSelector
 
+COMPONENT ClockMultiplier
+	PORT(
+		CLKIN_IN : IN std_logic;
+		RST_IN : IN std_logic;
+		CLK0_OUT : OUT std_logic;
+		CLK2X_OUT : OUT std_logic
+	);
+END COMPONENT;
+
 --component Memory
 --	port (
 --		ReadEN : in std_logic;
@@ -452,6 +461,9 @@ signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 
 -- IOBridge
 signal CPUClock : std_logic;
+signal MultiClock : std_logic;
+signal OriginClock : std_logic;
+signal StdClock : std_logic;
 signal IOBridgeDataOutput1 : std_logic_vector (15 downto 0);
 signal IOBridgeDataOutput2 : std_logic_vector (15 downto 0);
 signal IOBridgeRAM1EN : std_logic;
@@ -460,7 +472,15 @@ signal key_0, key_1 : std_logic_vector(3 downto 0);
 
 begin
 
-	Clock <= Clock_50 when SW(15) = '1' else Clock_M;
+	Inst_ClockMultiplier: ClockMultiplier PORT MAP(
+		CLKIN_IN => Clock_50,
+		RST_IN => Rst,
+		CLK0_OUT => OriginClock,
+		CLK2X_OUT => MultiClock
+	);
+
+	StdClock <= MultiClock when SW(14) = '1' else OriginClock;
+	Clock <= StdClock when SW(15) = '1' else Clock_M;
 	Reset <= not Rst;
 	-- CPUClock <= Clock;
 	--LED <= IFIDInstructionOutput;

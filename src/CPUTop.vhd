@@ -190,7 +190,7 @@ component IDEXReg
 		RegWriteInput : in std_logic;
 		MemReadInput : in std_logic;
 		MemWriteInput : in std_logic;
-		InstructionInput : in std_logic_vector(15 downto 0);
+		ALUOpInput : in std_logic_vector(2 downto 0);
 		BranchTypeInput : in std_logic_vector(1 downto 0);
 		JumpInput : in std_logic;
 		RegSrcAInput : in std_logic_vector(3 downto 0);
@@ -208,7 +208,7 @@ component IDEXReg
 		RegWriteOutput : out std_logic;
 		MemReadOutput : out std_logic;
 		MemWriteOutput : out std_logic;
-		InstructionOutput : out std_logic_vector(15 downto 0);
+		ALUOpOutput : out std_logic_vector(2 downto 0);
 		BranchTypeOutput : out std_logic_vector(1 downto 0);
 		JumpOutput : out std_logic;
 		RegSrcAOutput : out std_logic_vector(3 downto 0);
@@ -405,7 +405,6 @@ signal EXMuxF16Output : std_logic_vector(15 downto 0);
 signal ALUOutput : std_logic_vector(15 downto 0);
 signal ALUALUFlags : std_logic_vector(1 downto 0);
 signal TSelectorTOutput : std_logic_vector(15 downto 0);
-signal ALUControllerALUOp : std_logic_vector(2 downto 0);
 signal EXAddr16Output : std_logic_vector(15 downto 0);
 signal EXMux16Output : std_logic_vector(15 downto 0);
 signal EXMuxT16_1Output : std_logic_vector(15 downto 0);
@@ -438,6 +437,8 @@ signal IDRegisterFileReadDataA : std_logic_vector (15 downto 0);
 signal IDRegisterFileReadDataB : std_logic_vector (15 downto 0);
 
 signal IDExtenderOutput : std_logic_vector (15 downto 0);
+
+signal ALUControllerALUOp : std_logic_vector(2 downto 0);
 -- Unit
 signal HazardUnitPCWrite : std_logic;
 signal HazardUnitIFIDWrite : std_logic;
@@ -449,7 +450,7 @@ signal IDEXEXResultSelectOutput : std_logic_vector (1 downto 0);
 signal IDEXRegWriteOutput : std_logic;
 signal IDEXMemReadOutput : std_logic;
 signal IDEXMemWriteOutput : std_logic;
-signal IDEXInstructionOutput : std_logic_vector (15 downto 0);
+signal IDEXALUOpOutput : std_logic_vector (2 downto 0);
 signal IDEXBranchTypeOutput : std_logic_vector (1 downto 0);
 signal IDEXJumpOutput : std_logic;
 signal IDEXRegSrcAOutput : std_logic_vector (3 downto 0);
@@ -593,6 +594,10 @@ begin
 		Instruction => IFIDInstructionOutput,
 		Output => IDExtenderOutput
 	);
+	ALUController_c : ALUController port map(
+		Instruction => IFIDInstructionOutput,
+		ALUOp => ALUControllerALUOp
+	);
 	-- Unit
 	HazardUnit_c : HazardUnit port map (
 		IDEXMemRead => IDEXMemReadOutput,
@@ -616,7 +621,7 @@ begin
 		RegWriteInput => IDControllerRegWrite,
 		MemReadInput => IDControllerMemRead,
 		MemWriteInput => IDControllerMemWrite,
-		InstructionInput => IFIDInstructionOutput,
+		ALUOpInput => ALUControllerALUOp,
 		BranchTypeInput => IDControllerBranchType,
 		JumpInput => IDControllerJump,
 		RegSrcAInput => IDControllerRegSrcA,
@@ -634,7 +639,7 @@ begin
 		RegWriteOutput => IDEXRegWriteOutput,
 		MemReadOutput => IDEXMemReadOutput,
 		MemWriteOutput => IDEXMemWriteOutput,
-		InstructionOutput => IDEXInstructionOutput,
+		ALUOpOutput => IDEXALUOpOutput,
 		BranchTypeOutput => IDEXBranchTypeOutput,
 		JumpOutput => IDEXJumpOutput,
 		RegSrcAOutput => IDEXRegSrcAOutput,
@@ -676,7 +681,7 @@ begin
 		Output => EXMuxF16Output
 	);
 	ALU_c : ALU port map (
-		ALUOp => ALUControllerALUOp,
+		ALUOp => IDEXALUOpOutput,
 		InputA => EXMuxT16_1Output,
 		InputB => EXMux16Output,
 		Output => ALUOutput,
@@ -686,10 +691,6 @@ begin
 		TType => IDEXTTypeOutput,
 		ALUFlags => ALUALUFlags,
 		TOutput => TSelectorTOutput
-	);
-	ALUController_c : ALUController port map(
-		Instruction => IDEXInstructionOutput,
-		ALUOp => ALUControllerALUOp
 	);
 	EXAddr16 : Adder16 port map (
 		InputA => IDEXPCOutput,

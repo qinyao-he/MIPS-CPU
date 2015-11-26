@@ -42,7 +42,7 @@ entity IDEXReg is
 		RegWriteInput : in std_logic;
 		MemReadInput : in std_logic;
 		MemWriteInput : in std_logic;
-		InstructionInput : in std_logic_vector(15 downto 0);
+		ALUOpInput : in std_logic_vector(2 downto 0);
 		BranchTypeInput : in std_logic_vector(1 downto 0);
 		JumpInput : in std_logic;
 		RegSrcAInput : in std_logic_vector(3 downto 0);
@@ -60,7 +60,7 @@ entity IDEXReg is
 		RegWriteOutput : out std_logic;
 		MemReadOutput : out std_logic;
 		MemWriteOutput : out std_logic;
-		InstructionOutput : out std_logic_vector(15 downto 0);
+		ALUOpOutput : out std_logic_vector(2 downto 0);
 		BranchTypeOutput : out std_logic_vector(1 downto 0);
 		JumpOutput : out std_logic;
 		RegSrcAOutput : out std_logic_vector(3 downto 0);
@@ -81,7 +81,7 @@ architecture RTL of IDEXReg is
 	signal RegWriteReg : std_logic;
 	signal MemReadReg : std_logic;
 	signal MemWriteReg : std_logic;
-	signal InstructionReg : std_logic_vector(15 downto 0);
+	signal ALUOpReg : std_logic_vector(2 downto 0);
 	signal BranchTypeReg : std_logic_vector(1 downto 0);
 	signal JumpReg : std_logic;
 	signal RegSrcAReg : std_logic_vector(3 downto 0);
@@ -100,7 +100,7 @@ begin
 	RegWriteOutput <= RegWriteReg;
 	MemReadOutput <= MemReadReg;
 	MemWriteOutput <= MemWriteReg;
-	InstructionOutput <= InstructionReg;
+	ALUOpOutput <= ALUOpReg;
 	BranchTypeOutput <= BranchTypeReg;
 	JumpOutput <= JumpReg;
 	RegSrcAOutput <= RegSrcAReg;
@@ -121,7 +121,7 @@ begin
 			RegWriteReg <= '0';
 			MemReadReg <= '0';
 			MemWriteReg <= '0';
-			InstructionReg <= (others => '0');
+			ALUOpReg <= (others => '0');
 			BranchTypeReg <= (others => '0');
 			JumpReg <= '0';
 			RegSrcAReg <= (others => '0');
@@ -140,7 +140,7 @@ begin
 				RegWriteReg <= '0';
 				MemReadReg <= '0';
 				MemWriteReg <= '0';
-				InstructionReg <= (others => '0');
+				ALUOpReg <= (others => '0');
 				BranchTypeReg <= (others => '0');
 				JumpReg <= '0';
 				RegSrcAReg <= (others => '0');
@@ -158,7 +158,7 @@ begin
 				RegWriteReg <= RegWriteInput;
 				MemReadReg <= MemReadInput;
 				MemWriteReg <= MemWriteInput;
-				InstructionReg <= InstructionInput;
+				ALUOpReg <= ALUOpInput;
 				BranchTypeReg <= BranchTypeInput;
 				JumpReg <= JumpInput;
 				RegSrcAReg <= RegSrcAInput;

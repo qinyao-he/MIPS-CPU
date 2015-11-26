@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : ClockMultiplier.vhd
--- /___/   /\     Timestamp : 11/26/2015 03:59:42
+-- /___/   /\     Timestamp : 11/26/2015 13:38:10
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -30,8 +30,7 @@ entity ClockMultiplier is
           RST_IN          : in    std_logic; 
           CLKIN_IBUFG_OUT : out   std_logic; 
           CLK0_OUT        : out   std_logic; 
-          CLK2X_OUT       : out   std_logic; 
-          LOCKED_OUT      : out   std_logic);
+          CLK2X_OUT       : out   std_logic);
 end ClockMultiplier;
 
 architecture BEHAVIORAL of ClockMultiplier is
@@ -87,7 +86,7 @@ begin
                 CLK90=>open,
                 CLK180=>open,
                 CLK270=>open,
-                LOCKED=>LOCKED_OUT,
+                LOCKED=>open,
                 PSDONE=>open,
                 STATUS=>open);
    

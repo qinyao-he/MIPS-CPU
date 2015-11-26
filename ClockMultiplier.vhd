@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : ClockMultiplier.vhd
--- /___/   /\     Timestamp : 11/26/2015 10:46:36
+-- /___/   /\     Timestamp : 11/26/2015 13:38:23
 -- \   \  /  \ 
 --  \___\/\___\ 
 --

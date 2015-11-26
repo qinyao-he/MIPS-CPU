@@ -26,8 +26,8 @@ use ieee.std_logic_1164.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity CPUTop is
 	port (
@@ -474,7 +474,7 @@ begin
 
 	Inst_ClockMultiplier: ClockMultiplier PORT MAP(
 		CLKIN_IN => Clock_50,
-		RST_IN => Rst,
+		RST_IN => Reset,
 		CLK0_OUT => OriginClock,
 		CLK2X_OUT => MultiClock
 	);

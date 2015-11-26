@@ -33,38 +33,41 @@ use ieee.std_logic_arith.all;
 
 entity Keyboard is
 port (
-	datain : in std_logic; -- PS2 data
-	clkin : in std_logic; -- PS2 clk
-	fclk : in std_logic;  -- filter clock
-	rst : in std_logic;  -- filter reset
-	fok : out std_logic ;  -- data output enable signal
-	scancode : out std_logic_vector(7 downto 0) -- scan code signal output
+	PS2Data : in std_logic; -- PS2 data
+	PS2Clock : in std_logic; -- PS2 clk
+	Clock : in std_logic;
+	Reset : in std_logic;
+	DataReceive : in std_logic;
+	DataReady : out std_logic ;  -- data output enable signal
+	Output : out std_logic_vector(7 downto 0) -- scan code signal output
 	); 
 end Keyboard;
 
 architecture Behavioral of Keyboard is
 type state_type is (delay, start, s0, s1, s2, s3, s4, s5, s6, s7, parity, stop, finish);
 signal data, clk, clk1, clk2, odd, fokSignal : std_logic; -- 毛刺处理内部信号, odd为奇偶校验
-signal code : std_logic_vector(7 downto 0);
+signal code : std_logic_vector (7 downto 0);
+signal OutputCode : std_logic_vector (7 downto 0);
+signal st : std_logic_vector (3 downto 0) := "0000";
 signal state : state_type;
 begin
-	clk1 <= clkin when rising_edge(fclk);
-	clk2 <= clk1 when rising_edge(fclk);
+	clk1 <= PS2Clock when rising_edge(Clock);
+	clk2 <= clk1 when rising_edge(Clock);
 	clk <= (not clk1) and clk2;
-	data <= datain when rising_edge(fclk);
+	data <= PS2Data when rising_edge(Clock);
 	odd <= code(0) xor code(1) xor code(2) xor code(3) xor code(4) xor code(5) xor code(6) xor code(7);
-	scancode <= code when fokSignal = '1';
-	fok <= fokSignal;
+	OutputCode <= code when fokSignal = '1';
+	-- DataReady <= fokSignal;
 	
-	process(rst, fclk)
+	process(Reset, Clock)
 	begin
-		if rst = '1' then
+		if Reset = '1' then
 			state <= delay ;
 			code <= (others => '0') ;
 			fokSignal <= '1';
 			code <= "00000000";
 			fokSignal <= '0';
-		elsif rising_edge(fclk) then
+		elsif rising_edge(Clock) then
 			fokSignal <= '0';
 			case state is 
 				when delay =>
@@ -142,7 +145,23 @@ begin
 					state <= delay;
 			end case;
 		end if;
-	end process ;
+
+		if rising_edge(Clock) then
+			if Clock = "11110000" then
+				st <= "0001";
+			else
+				case st is
+					when "0001" =>
+						DataReady <= '1';
+						Output <= OutputCode;
+						st <= "0000";
+					when others =>
+						st <= "0000";
+				end case;
+			end if;
+		end if;
+
+	end process;
 end Behavioral ;
 			
 						

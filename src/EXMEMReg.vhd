@@ -72,7 +72,7 @@ begin
 	EXResultOutput <= EXResultReg;
 	RegDataBOutput <= RegDataBReg;
 
-	process(Clock)
+	process(Clock, Reset)
 	begin
 		if Reset = '1' then
 			RegWriteReg <= '0';

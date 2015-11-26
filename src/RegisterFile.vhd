@@ -77,7 +77,7 @@ begin
 	--ReadDataA <= regs(to_integer(unsigned(ReadRegA)));
 	--ReadDataB <= regs(to_integer(unsigned(ReadRegB)));
 
-	process (Clock)
+	process (Clock, Reset)
 	begin
 		if Reset = '1' then
 			regs <= (others => (others => '0'));

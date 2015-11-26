@@ -46,7 +46,7 @@ begin
 
 	Output <= PCReg;
 
-	process(Clock)
+	process(Clock, Reset)
 	begin
 		if Reset = '1' then
 			PCReg <= (others => '0');

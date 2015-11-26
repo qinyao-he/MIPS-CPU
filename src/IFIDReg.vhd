@@ -56,7 +56,7 @@ begin
 	PCOutput <= PCReg;
 	RPCOutput <= RPCReg;
 
-	process(Clock)
+	process(Clock, Reset)
 	begin
 		if Reset = '1' then
 			InstructionReg <= (others => '0');

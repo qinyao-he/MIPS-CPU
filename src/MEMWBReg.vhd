@@ -64,7 +64,7 @@ begin
 	EXResultOutput <= EXResultReg;
 	MemDataOutput <= MemDataReg;
 
-	process(Clock)
+	process(Clock, Reset)
 	begin
 		if Reset = '1' then
 			RegWriteReg <= '0';

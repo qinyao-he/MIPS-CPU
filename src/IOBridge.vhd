@@ -89,7 +89,7 @@ begin
 
 	MemoryBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE) else
 					'1';
-	SerialBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE or state=DATA_READ) else
+	SerialBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE) else
 					'1';
 	MemoryDataBus <= DataInput2 when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
@@ -97,8 +97,8 @@ begin
 	MemoryAddress <= "00" & Address1 when state=INS_READ else
 					"00" & Address2;
 
-	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=INS_READ) else '1';
-	SerialWRN <= not WriteEN when (Address2=x"BF00" and (state=DATA_WRITE or state=DATA_READ)) else '1';
+	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
+	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_WRITE) else '1';
 
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTSRE and SerialTBRE);
 
@@ -114,17 +114,17 @@ begin
 					state <= DATA_READ;
 				when DATA_READ =>
 					state <= INS_READ;
-					BufferData2 <= MemoryDataBus;
-				when INS_READ =>
-					state <= INIT;
-					BufferData1 <= MemoryDataBus;
 					case Address2 is
 						when x"BF00" =>
 							BufferData2 <= "00000000" & SerialDataBus;
 						when x"BF01" =>
 							BufferData2 <= BF01;
 						when others =>
+							BufferData2 <= MemoryDataBus;
 					end case;
+				when INS_READ =>
+					state <= INIT;
+					BufferData1 <= MemoryDataBus;
 				when others =>
 					state <= INIT;
 			end case;

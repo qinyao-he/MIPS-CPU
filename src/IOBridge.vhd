@@ -69,12 +69,41 @@ entity IOBridge is
 		VGAAddress : out std_logic_vector(10 downto 0);
 		VGAData : out std_logic_vector(7 downto 0);
 		VGAWE : out std_logic_vector(0 downto 0);
-		VGAUpdate : out std_logic_vector(1 downto 0)
+		VGAUpdate : out std_logic_vector(1 downto 0);
+
+		FlashByte : out std_logic;
+		FlashVpen : out std_logic;
+		FlashCE : out std_logic;
+		FlashOE : out std_logic;
+		FlashWE : out std_logic;
+		FlashRP : out std_logic;
+		FlashAddr : out std_logic_vector(22 downto 0);
+		FlashData : inout std_logic_vector(15 downto 0)
 	);
 end IOBridge;
 
 architecture Behavioral of IOBridge is
-	type STATE_TYPE is (INIT, DATA_WRITE, DATA_READ, INS_READ);
+
+	component FlashAdapter
+		port (
+			Clock : in std_logic;
+			Reset : in std_logic;
+			Address : in std_logic_vector(22 downto 1);
+			OutputData : out std_logic_vector(15 downto 0);
+
+			FlashByte : out std_logic;
+			FlashVpen : out std_logic;
+			FlashCE : out std_logic;
+			FlashOE : out std_logic;
+			FlashWE : out std_logic;
+			FlashRP : out std_logic;
+
+			FlashAddr : out std_logic_vector(22 downto 0);
+			FlashData : inout std_logic_vector(15 downto 0)
+		);
+	end component;
+
+	type STATE_TYPE is (DATA_INIT, DATA_WRITE, DATA_READ, INS_READ);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -98,9 +127,9 @@ begin
 				'0' when state=INS_READ else
 				'1';
 
-	MemoryBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE) else
+	MemoryBusFlag <= not WriteEN when (state=DATA_INIT or state=DATA_WRITE) else
 					'1';
-	SerialBusFlag <= not WriteEN when (state=INIT or state=DATA_WRITE) else
+	SerialBusFlag <= not WriteEN when (state=DATA_INIT or state=DATA_WRITE) else
 					'1';
 	MemoryDataBus <= DataInput2 when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
@@ -115,7 +144,7 @@ begin
 
 	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_READ) else '1';
 
-	VGAWE <= "1" when (WriteEN='1' and (state=DATA_WRITE or state=INIT) and (Address2(15 downto 11)="11111"))
+	VGAWE <= "1" when (WriteEN='1' and (state=DATA_WRITE or state=DATA_INIT) and (Address2(15 downto 11)="11111"))
 		else "0";
 	VGAUpdate <= "00";
 
@@ -125,10 +154,10 @@ begin
 	process (Clock, Reset)
 	begin
 		if Reset = '1' then
-			state <= INIT;
+			state <= DATA_INIT;
 		elsif falling_edge(Clock) then
 			case state is
-				when INIT =>
+				when DATA_INIT =>
 					state <= DATA_WRITE;
 				when DATA_WRITE =>
 					state <= DATA_READ;
@@ -147,10 +176,10 @@ begin
 							BufferData2 <= MemoryDataBus;
 					end case;
 				when INS_READ =>
-					state <= INIT;
+					state <= DATA_INIT;
 					BufferData1 <= MemoryDataBus;
 				when others =>
-					state <= INIT;
+					state <= DATA_INIT;
 			end case;
 		end if;
 	end process;

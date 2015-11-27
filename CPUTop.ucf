@@ -112,7 +112,6 @@ NET "Clock_11" LOC = B8;
 NET "PS2KeybardClock" LOC = U6;
 NET "PS2KeybardData" LOC = V6;
 
-# PlanAhead Generated physical constraints 
 
 NET "VGA_B[2]" LOC = B6;
 NET "VGA_B[1]" LOC = A6;
@@ -125,3 +124,51 @@ NET "VGA_R[1]" LOC = C3;
 NET "VGA_R[0]" LOC = A7;
 NET "VGA_HS" LOC = D6;
 NET "VGA_VS" LOC = E6;
+
+# PlanAhead Generated physical constraints 
+
+NET "FlashByte" LOC = C1;
+NET "FlashCE" LOC = E4;
+NET "FlashOE" LOC = E1;
+NET "FlashRP" LOC = D1;
+NET "FlashVpen" LOC = C2;
+NET "FlashWE" LOC = D4;
+NET "FlashAddr[22]" LOC = K4;
+NET "FlashAddr[21]" LOC = K5;
+NET "FlashAddr[20]" LOC = K6;
+NET "FlashAddr[19]" LOC = L1;
+NET "FlashAddr[18]" LOC = L2;
+NET "FlashAddr[17]" LOC = L3;
+NET "FlashAddr[16]" LOC = L4;
+NET "FlashAddr[15]" LOC = L5;
+NET "FlashAddr[14]" LOC = L6;
+NET "FlashAddr[13]" LOC = M3;
+NET "FlashAddr[12]" LOC = M4;
+NET "FlashAddr[11]" LOC = M5;
+NET "FlashAddr[10]" LOC = M6;
+NET "FlashAddr[9]" LOC = N4;
+NET "FlashAddr[8]" LOC = N5;
+NET "FlashAddr[7]" LOC = P1;
+NET "FlashAddr[6]" LOC = P2;
+NET "FlashAddr[5]" LOC = P3;
+NET "FlashAddr[4]" LOC = P4;
+NET "FlashAddr[3]" LOC = R2;
+NET "FlashAddr[2]" LOC = R3;
+NET "FlashAddr[1]" LOC = T1;
+NET "FlashAddr[0]" LOC = T2;
+NET "FlashData[15]" LOC = F1;
+NET "FlashData[14]" LOC = F2;
+NET "FlashData[13]" LOC = G3;
+NET "FlashData[12]" LOC = G4;
+NET "FlashData[11]" LOC = G5;
+NET "FlashData[10]" LOC = G6;
+NET "FlashData[9]" LOC = H1;
+NET "FlashData[8]" LOC = H2;
+NET "FlashData[7]" LOC = H3;
+NET "FlashData[6]" LOC = H4;
+NET "FlashData[5]" LOC = H5;
+NET "FlashData[4]" LOC = H6;
+NET "FlashData[3]" LOC = J1;
+NET "FlashData[2]" LOC = J2;
+NET "FlashData[1]" LOC = J4;
+NET "FlashData[0]" LOC = J5;

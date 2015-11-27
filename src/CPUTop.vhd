@@ -60,6 +60,15 @@ entity CPUTop is
 		VGA_HS : out std_logic;
 		VGA_VS : out std_logic;
 
+		FlashByte : out std_logic;
+		FlashVpen : out std_logic;
+		FlashCE : out std_logic;
+		FlashOE : out std_logic;
+		FlashWE : out std_logic;
+		FlashRP : out std_logic;
+		FlashAddr : out std_logic_vector(22 downto 0);
+		FlashData : inout std_logic_vector(15 downto 0);
+
 		SW : in std_logic_vector(15 downto 0);
 		LED : out std_logic_vector (15 downto 0);
 		DYP0 : out std_logic_vector (6 downto 0);
@@ -284,7 +293,16 @@ component IOBridge
 		VGAAddress : out std_logic_vector(10 downto 0);
 		VGAData : out std_logic_vector(7 downto 0);
 		VGAWE : out std_logic_vector(0 downto 0);
-		VGAUpdate : out std_logic_vector(1 downto 0)
+		VGAUpdate : out std_logic_vector(1 downto 0);
+
+		FlashByte : out std_logic;
+		FlashVpen : out std_logic;
+		FlashCE : out std_logic;
+		FlashOE : out std_logic;
+		FlashWE : out std_logic;
+		FlashRP : out std_logic;
+		FlashAddr : out std_logic_vector(22 downto 0);
+		FlashData : inout std_logic_vector(15 downto 0)
 	);
 end component; -- IOBridge
 
@@ -850,7 +868,16 @@ begin
 		VGAAddress => VGAAddress,
 		VGAData => VGAData,
 		VGAWE => VGAWE,
-		VGAUpdate => VGAUpdate
+		VGAUpdate => VGAUpdate,
+
+		FlashByte => FlashByte,
+		FlashVpen => FlashVpen,
+		FlashCE => FlashCE,
+		FlashOE => FlashOE,
+		FlashWE => FlashWE,
+		FlashRP => FlashRP,
+		FlashAddr => FlashAddr,
+		FlashData => FlashData
 	);
 
 	Keyboard_c : Keyboard port map (

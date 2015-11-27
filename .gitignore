@@ -5,11 +5,18 @@ _ngo/
 planAhead_run_*/
 xlnx_auto_0_xdb/
 .Xil/
+
 ipcore_dir/*/simulation/
 ipcore_dir/*/implement/
 ipcore_dir/*/example_design/
 ipcore_dir/*/doc/
 
+ipcore_dir/*.asy
+ipcore_dir/*.ncf
+ipcore_dir/*.sym
+ipcore_dir/*.vho
+ipcore_dir/*.mif
+ipcore_dir/*.cgp
 
 *.html
 *.gise

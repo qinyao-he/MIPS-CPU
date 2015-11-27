@@ -40,7 +40,7 @@ end component;
 
 -- signal
 
-signal PS2Data : std_logic_vector (7 downto 0);
+signal PS2DataSignal : std_logic_vector (7 downto 0);
 
 -- end signal
 
@@ -53,11 +53,11 @@ begin
 		Reset => Reset,
 		DataReceive => DataReceive,
 		DataReady => DataReady,
-		Output => PS2Data
+		Output => PS2DataSignal
 	);
 
 	KeyboardToAscii_c : KeyboardToAscii port map (
-		Data => PS2Data,
+		Data => PS2DataSignal,
 		Output => Output
 	);
 

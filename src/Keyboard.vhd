@@ -67,6 +67,7 @@ begin
 			fokSignal <= '1';
 			code <= "00000000";
 			fokSignal <= '0';
+			DataReady <= '0';
 		elsif rising_edge(Clock) then
 			fokSignal <= '0';
 			case state is
@@ -144,9 +145,7 @@ begin
 				when others =>
 					state <= delay;
 			end case;
-		end if;
 
-		if rising_edge(Clock) then
 			if OutputCode = "11110000" then
 				st <= "0001";
 			else
@@ -162,6 +161,7 @@ begin
 			if DataReceive = '0' then
 				DataReady <= '0';
 			end if;
+
 		end if;
 
 	end process;

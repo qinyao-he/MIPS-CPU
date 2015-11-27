@@ -76,7 +76,8 @@ architecture Behavioral of CharAdapter is
 	signal CharAddrb_in : std_logic_vector(10 downto 0);
 	signal CharDoutb_in : std_logic_vector(7 downto 0);
 	signal LettersAddr : std_logic_vector(9 downto 0);
-	signal LettersDout : std_logic_vector(0 to 15);
+	signal LettersDout : std_logic_vector(15 downto 0);
+	signal LetterDoutReverse : std_logic_vector(15 downto 0);
 	signal LineNumOfChar : std_logic_vector(3 downto 0);
 	signal Char : std_logic_vector(7 downto 0);
 	--signal CharDouta : std_logic_vector(7 downto 0);
@@ -86,6 +87,7 @@ architecture Behavioral of CharAdapter is
 	--signal debugGramAddr:std_logic_vector(14 downto 0);
 	--signal debugGramDina:std_logic_vector(15 downto 0);
 begin
+	LetterDoutReverse　<= LettersDout(0 to 15);
 	CharBuffer_c : CharBuffer port map(
 		clka => CLKout,
 		clkb => CLKin,
@@ -130,7 +132,7 @@ begin
 						Char <= CharDoutb_in;
 						state <= CHARA;
 					when CHARA =>
-						GRamDina <= LettersDout;
+						GRamDina <= LetterDoutReverse;
 						result := (LineNum*16+num)*40+RowNum;
 						GRamAddra <= CONV_STD_LOGIC_VECTOR(result, 15);
 						--debugGramAddr <= CONV_STD_LOGIC_VECTOR(result, 15);

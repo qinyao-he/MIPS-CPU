@@ -54,7 +54,7 @@ architecture Behavioral of CharAdapter is
 	component Letters is
 		port (
 			clka : in std_logic;
-			addra : in std_logic_vector(9 downto 0);
+			addra : in std_logic_vector(11 downto 0);
 			douta : out std_logic_vector(15 downto 0)
 		);
 	end component;
@@ -75,7 +75,7 @@ architecture Behavioral of CharAdapter is
 	-- CharBufferB
 	signal CharAddrb_in : std_logic_vector(10 downto 0);
 	signal CharDoutb_in : std_logic_vector(7 downto 0);
-	signal LettersAddr : std_logic_vector(9 downto 0);
+	signal LettersAddr : std_logic_vector(11 downto 0);
 	signal LettersDout : std_logic_vector(15 downto 0);
 	signal LetterDoutReverse : std_logic_vector(15 downto 0);
 	signal LineNumOfChar : std_logic_vector(3 downto 0);
@@ -120,7 +120,7 @@ begin
 		addra => LettersAddr,
 		douta => LettersDout
 	);
-	LettersAddr <= Char(5 downto 0) & LineNumOfChar;
+	LettersAddr <= Char(7 downto 0) & LineNumOfChar;
 	--LED <=	EXT(LettersDout,LED'length) when SW = "0000000000000000" else
 	--		EXT(LettersAddr,LED'length) when SW = "0000000000000001" else
 	--		EXT(Char,LED'length) when SW = "0000000000000010" else

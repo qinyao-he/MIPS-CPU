@@ -33,8 +33,9 @@ entity FlashAdapter is
 	port (
 		Clock : in std_logic;
 		Reset : in std_logic;
-		Address : in std_logic_vector(22 downto 1);
+		Address : in std_logic_vector(22 downto 0);
 		OutputData : out std_logic_vector(15 downto 0);
+		ctl_read : in std_logic;
 
 		FlashByte : out std_logic;
 		FlashVpen : out std_logic;
@@ -49,32 +50,51 @@ entity FlashAdapter is
 end FlashAdapter;
 
 architecture Behavioral of FlashAdapter is
-	type STATE_TYPE is (OPSET, DATA_READ);
+	type STATE_TYPE is (INIT, READ1, READ2, READ3, READ4);
 	signal state : STATE_TYPE;
+	signal ctl_read_last : std_logic;
 begin
 
 	FlashByte <= '1';
 	FlashVpen <= '1';
 	FlashRP <= '1';
 
-	FlashWE <= '0' when state=OPSET else '1';
-	FlashOE <= '0' when state=DATA_READ else '1';
-	FlashAddr <= "00000000000000000000000" when state=OPSET else
-				Address & '0' when state=DATA_READ;
-	FlashData <= x"00FF" when state=OPSET else (others => 'Z');
-
 	process(Clock, Reset)
 	begin
 		if Reset = '1' then
-			state <= OPSET;
+			state <= INIT;
+			FlashWE <= '1';
+			FlashOE <= '1';
+			FlashData <= (others => 'Z');
+			ctl_read_last <= ctl_read;
 		elsif rising_edge(Clock) then
 			case state is
-				when OPSET =>
-					state <= DATA_READ;
-				when DATA_READ =>
-					state <= OPSET;
+				when INIT =>
+					if ctl_read_last /= ctl_read then
+						state <= READ1;
+						FlashWE <= '0';
+					else
+						state <= INIT;
+					end if;
+				when READ1 =>
+					state <= READ2;
+					FlashData <= x"00FF";
+				when READ2 =>
+					state <= READ3;
+					FlashWE <= '1';
+				when READ3 =>
+					state <= READ4;
+					FlashOE <= '0';
+					FlashAddr <= Address;
+					FlashData <= (others => 'Z');
+				when READ4 =>
+					state <= INIT;
+					OutputData <= FlashData;
 				when others =>
-					state <= OPSET;
+					FlashWE <= '1';
+					FlashOE <= '1';
+					FlashData <= (others => 'Z');
+					state <= INIT;
 			end case;
 		end if;
 	end;

@@ -113,6 +113,7 @@ component IOBridge
 		Clock : in std_logic;
 		Reset : in std_logic;
 		CPUClock : out std_logic;
+		SW : in std_logic_vector(15 downto 0);
 
 		ReadEN : in std_logic;
 		WriteEN : in std_logic;
@@ -155,7 +156,9 @@ component IOBridge
 		FlashWE : out std_logic;
 		FlashRP : out std_logic;
 		FlashAddr : out std_logic_vector(22 downto 0);
-		FlashData : inout std_logic_vector(15 downto 0)
+		FlashData : inout std_logic_vector(15 downto 0);
+
+		LEDOut : out std_logic_vector(15 downto 0)
 	);
 end component; -- IOBridge
 
@@ -240,11 +243,11 @@ begin
 		CLKFX_OUT => MultiClock
 	);
 
-	StdClock <= MultiClock when SW(14) = '1' else Clock_50;
+	StdClock <= DoubleClock when SW(14) = '1' else Clock_50;
 	Clock <= StdClock when SW(15) = '1' else Clock_M;
 	Reset <= not Rst;
 
-	LED <= CPULEDOut;
+	--LED <= CPULEDOut;
 
 	Seg7_0 : Seg7 port map(key_0, DYP0);
 	Seg7_1 : Seg7 port map(key_1, DYP1);
@@ -275,6 +278,7 @@ begin
 		Clock => Clock,
 		Reset => Reset,
 		CPUClock => CPUClock,
+		SW => SW,
 
 		ReadEN => CPUMemoryReadEN,
 		WriteEN => CPUMemoryWriteEN,
@@ -317,7 +321,9 @@ begin
 		FlashWE => FlashWE,
 		FlashRP => FlashRP,
 		FlashAddr => FlashAddr,
-		FlashData => FlashData
+		FlashData => FlashData,
+
+		LEDOut => LED
 	);
 
 	KeyboardAdapter_c : KeyboardAdapter port map (

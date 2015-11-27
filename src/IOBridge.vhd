@@ -36,6 +36,7 @@ entity IOBridge is
 		Clock : in std_logic;
 		Reset : in std_logic;
 		CPUClock : out std_logic;
+		SW : in std_logic_vector(15 downto 0);
 
 		ReadEN : in std_logic;
 		WriteEN : in std_logic;
@@ -78,7 +79,9 @@ entity IOBridge is
 		FlashWE : out std_logic;
 		FlashRP : out std_logic;
 		FlashAddr : out std_logic_vector(22 downto 0);
-		FlashData : inout std_logic_vector(15 downto 0)
+		FlashData : inout std_logic_vector(15 downto 0);
+
+		LEDOut : out std_logic_vector(15 downto 0)
 	);
 end IOBridge;
 
@@ -88,8 +91,9 @@ architecture Behavioral of IOBridge is
 		port (
 			Clock : in std_logic;
 			Reset : in std_logic;
-			Address : in std_logic_vector(22 downto 1);
+			Address : in std_logic_vector(22 downto 0);
 			OutputData : out std_logic_vector(15 downto 0);
+			ctl_read : in std_logic;
 
 			FlashByte : out std_logic;
 			FlashVpen : out std_logic;
@@ -103,7 +107,7 @@ architecture Behavioral of IOBridge is
 		);
 	end component;
 
-	type STATE_TYPE is (BOOT, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ, HOLD);
+	type STATE_TYPE is (BOOT, BOOT_START, BOOT_FLASH, BOOT_RAM, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ, HOLD);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -111,7 +115,37 @@ architecture Behavioral of IOBridge is
 	signal BF03 : std_logic_vector(15 downto 0);
 
 	signal MemoryBusFlag, SerialBusFlag : std_logic;
+	signal MemoryBusHolder : std_logic_vector(15 downto 0);
+
+	signal FlashBootMemAddr : std_logic_vector(15 downto 0);
+	signal FlashBootAddr : std_logic_vector(22 downto 0);
+	signal FlashAddrInput : std_logic_vector(22 downto 0);
+	signal FlashDataOutput : std_logic_vector(15 downto 0);
+
+	signal FlashTimer : std_logic_vector(7 downto 0);
+	signal FlashReadData : std_logic_vector(15 downto 0);
+	signal ctl_read : std_logic;
 begin
+
+	FlashAdapter_c : FlashAdapter port map (
+		Clock => Clock,
+		Reset => Reset,
+		Address => FlashAddrInput,
+		OutputData => FlashDataOutput,
+		ctl_read => ctl_read,
+
+		FlashByte => FlashByte,
+		FlashVpen => FlashVpen,
+		FlashCE => FlashCE,
+		FlashOE => FlashOE,
+		FlashWE => FlashWE,
+		FlashRP => FlashRP,
+
+		FlashAddr => FlashAddr,
+		FlashData => FlashData
+	);
+
+	LEDOut <= FlashBootMemAddr;
 
 	MemoryEN <= '0';
 	RAM1EN <= '1';
@@ -119,28 +153,32 @@ begin
 	DataOutput1 <= BufferData1;
 	DataOutput2 <= BufferData2;
 
-	CPUClock <= '0' when (state=INS_READ or state=HOLD) else
-				'1';
+	CPUClock <= '0' when (state=INS_READ or state=HOLD) else '1';
+
 
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_RW) else
 				'1' when (Address2=x"BF01" and state=DATA_RW) else
 				'1' when (Address2=x"BF02" and state=DATA_RW) else
 				'1' when (Address2=x"BF03" and state=DATA_RW) else
 				not WriteEN when state=DATA_RW else
+				'0' when state=BOOT_RAM else
 				'1';
 	MemoryOE <= not ReadEN when state=DATA_RW else
 				'0' when state=INS_READ else
 				'1';
 
 	MemoryBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
+					'0' when (state=BOOT_RAM or state=BOOT_FLASH) else
 					'1';
 	SerialBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
 					'1';
-	MemoryDataBus <= DataInput2 when MemoryBusFlag='0' else (others => 'Z');
+	MemoryBusHolder <= FlashReadData when (state=BOOT_FLASH or state=BOOT_RAM) else DataInput2;
+	MemoryDataBus <= MemoryBusHolder when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
 	VGAData <= DataInput2(7 downto 0);
 
-	MemoryAddress <= "00" & Address1 when state=INS_READ else
+	MemoryAddress <= "00" & FlashBootMemAddr when (state=BOOT_FLASH or state=BOOT_RAM) else
+					"00" & Address1 when state=INS_READ else
 					"00" & Address2;
 	VGAAddress <= Address2(10 downto 0);
 
@@ -156,14 +194,47 @@ begin
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTSRE and SerialTBRE);
 	BF03 <= "000000000000000" & KeyboardDATA_READY;
 
+	ctl_read <= '0' when state=BOOT_FLASH else '1';
+
 	process (Clock, Reset)
 	begin
 		if Reset = '1' then
-			state <= BOOT_COMPLETE;
-		elsif falling_edge(Clock) then
+			if SW(13) = '1' then
+				state <= BOOT_START;
+			else
+				state <= BOOT_COMPLETE;
+			end if;
+		elsif rising_edge(Clock) then
 			case state is
 				when BOOT =>
 					state <= BOOT;
+				when BOOT_START =>
+					state <= BOOT_FLASH;
+					FlashTimer <= "00000000";
+					FlashBootMemAddr <= (others => '0');
+					FlashBootAddr <= "00000000000000000000000";
+				when BOOT_FLASH =>
+					case FlashTimer is
+						when "00000000" =>
+							FlashAddrInput <= FlashBootAddr;
+							FlashTimer <= FlashTimer + 1;
+							state <= BOOT_FLASH;
+						when "11111111" =>
+							state <= BOOT_RAM;
+							FlashReadData <= FlashDataOutput;
+							FlashTimer <= "00000000";
+						when others =>
+							FlashTimer <= FlashTimer + 1;
+							state <= BOOT_FLASH;
+					end case;
+				when BOOT_RAM =>
+					FlashBootAddr <= FlashBootAddr + 2;
+					FlashBootMemAddr <= FlashBootMemAddr + 1;
+					if FlashBootMemAddr < x"0FFF" then
+						state <= BOOT_FLASH;
+					else
+						state <= BOOT_COMPLETE;
+					end if;
 				when BOOT_COMPLETE =>
 					state <= DATA_PRE;
 				when DATA_PRE =>

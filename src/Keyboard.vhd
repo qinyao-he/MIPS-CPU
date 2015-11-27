@@ -159,6 +159,9 @@ begin
 						st <= "0000";
 				end case;
 			end if;
+			if DataReceive = '1' then
+				DataReady <= '0';
+			end if;
 		end if;
 
 	end process;

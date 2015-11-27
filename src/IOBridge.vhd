@@ -60,7 +60,11 @@ entity IOBridge is
 		SerialDATA_READY : in std_logic;
 		SerialTSRE : in std_logic;
 		SerialTBRE : in std_logic;
-		SerialDataBus : inout std_logic_vector(7 downto 0)
+		SerialDataBus : inout std_logic_vector(7 downto 0);
+
+		KeyboardDATA_READY : in std_logic;
+		KeyboardRDN : out std_logic;
+		KeyboardData : in std_logic_vector(7 downto 0)
 	);
 end IOBridge;
 
@@ -70,6 +74,7 @@ architecture Behavioral of IOBridge is
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
 	signal BF01 : std_logic_vector(15 downto 0);
+	signal BF03 : std_logic_vector(15 downto 0);
 
 	signal MemoryBusFlag, SerialBusFlag : std_logic;
 begin
@@ -100,7 +105,10 @@ begin
 	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
 	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_WRITE) else '1';
 
+	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_READ) else '1';
+
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTSRE and SerialTBRE);
+	BF03 <= "000000000000000" & KeyboardDATA_READY;
 
 	process (Clock, Reset)
 	begin
@@ -119,6 +127,10 @@ begin
 							BufferData2 <= "00000000" & SerialDataBus;
 						when x"BF01" =>
 							BufferData2 <= BF01;
+						when x"BF02" =>
+							BufferData2 <= "00000000" & KeyboardData;
+						when x"BF03" =>
+							BufferData2 <= BF03;
 						when others =>
 							BufferData2 <= MemoryDataBus;
 					end case;

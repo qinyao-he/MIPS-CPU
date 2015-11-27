@@ -51,6 +51,9 @@ entity CPUTop is
 		SerialTSRE : in std_logic;
 		SerialTBRE : in std_logic;
 
+		PS2KeybardClock : in std_logic;
+		PS2KeybardData : in std_logic;
+
 		SW : in std_logic_vector(15 downto 0);
 		LED : out std_logic_vector (15 downto 0);
 		DYP0 : out std_logic_vector (6 downto 0);
@@ -266,7 +269,11 @@ component IOBridge
 		SerialDATA_READY : in std_logic;
 		SerialTSRE : in std_logic;
 		SerialTBRE : in std_logic;
-		SerialDataBus : inout std_logic_vector(7 downto 0)
+		SerialDataBus : inout std_logic_vector(7 downto 0);
+
+		KeyboardDATA_READY : in std_logic;
+		KeyboardRDN : out std_logic;
+		KeyboardData : in std_logic_vector(7 downto 0)
 	);
 end component; -- IOBridge
 
@@ -356,6 +363,18 @@ component TSelector
 		TOutput : out std_logic_vector (15 downto 0)
 	);
 end component; -- TSelector
+
+component Keyboard
+	port (
+		PS2Data : in std_logic; -- PS2 data
+		PS2Clock : in std_logic; -- PS2 clk
+		Clock : in std_logic;
+		Reset : in std_logic;
+		DataReceive : in std_logic;
+		DataReady : out std_logic ;  -- data output enable signal
+		Output : out std_logic_vector(7 downto 0) -- scan code signal output
+	);
+end component; -- Keyboard
 
 COMPONENT ClockMultiplier
 	PORT(
@@ -471,6 +490,10 @@ signal StdClock : std_logic;
 signal IOBridgeDataOutput1 : std_logic_vector (15 downto 0);
 signal IOBridgeDataOutput2 : std_logic_vector (15 downto 0);
 signal IOBridgeRAM1EN : std_logic;
+
+signal KeyboardDataReady : std_logic;
+signal KeyboardDataReceive : std_logic;
+signal KeyboardOutput : std_logic_vector(7 downto 0);
 
 signal key_0, key_1 : std_logic_vector(3 downto 0);
 
@@ -787,7 +810,22 @@ begin
 		SerialDATA_READY => SerialDATA_READY,
 		SerialTSRE => SerialTSRE,
 		SerialTBRE => SerialTBRE,
-		SerialDataBus => Ram1Data
+		SerialDataBus => Ram1Data,
+
+		KeyboardDATA_READY => KeyboardDataReady,
+		KeyboardRDN => KeyboardDataReceive,
+		KeyboardData => KeyboardOutput
 	);
+
+	Keyboard_c : Keyboard port map (
+		PS2Data => PS2KeybardData,
+		PS2Clock => PS2KeybardClock,
+		Clock => Clock,
+		Reset => Reset,
+		DataReceive => KeyboardDataReceive,
+		DataReady => KeyboardDataReady,
+		Output => KeyboardOutput
+	);
+
 end Behavioral;
 

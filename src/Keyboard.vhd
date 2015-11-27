@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    01:06:04 11/27/2015 
--- Design Name: 
--- Module Name:    Keyboard - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    01:06:04 11/27/2015
+-- Design Name:
+-- Module Name:    Keyboard - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -40,7 +40,7 @@ port (
 	DataReceive : in std_logic;
 	DataReady : out std_logic ;  -- data output enable signal
 	Output : out std_logic_vector(7 downto 0) -- scan code signal output
-	); 
+	);
 end Keyboard;
 
 architecture Behavioral of Keyboard is
@@ -58,7 +58,7 @@ begin
 	odd <= code(0) xor code(1) xor code(2) xor code(3) xor code(4) xor code(5) xor code(6) xor code(7);
 	OutputCode <= code when fokSignal = '1';
 	-- DataReady <= fokSignal;
-	
+
 	process(Reset, Clock)
 	begin
 		if Reset = '1' then
@@ -69,7 +69,7 @@ begin
 			fokSignal <= '0';
 		elsif rising_edge(Clock) then
 			fokSignal <= '0';
-			case state is 
+			case state is
 				when delay =>
 					state <= start;
 				when start =>
@@ -159,7 +159,7 @@ begin
 						st <= "0000";
 				end case;
 			end if;
-			if DataReceive = '1' then
+			if DataReceive = '0' then
 				DataReady <= '0';
 			end if;
 		end if;

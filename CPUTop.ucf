@@ -105,6 +105,10 @@ NET "DYP1[0]" LOC = B10;
 NET "Clock_50" LOC = B9;
 NET "Clock_M" LOC = U9;
 
-# PlanAhead Generated physical constraints 
 
 NET "Clock_11" LOC = B8;
+
+# PlanAhead Generated physical constraints
+
+NET "PS2KeybardClock" LOC = U6;
+NET "PS2KeybardData" LOC = V6;

@@ -393,7 +393,7 @@ component TSelector
 	);
 end component; -- TSelector
 
-component Keyboard
+component KeyboardAdapter
 	port (
 		PS2Data : in std_logic; -- PS2 data
 		PS2Clock : in std_logic; -- PS2 clk
@@ -403,7 +403,7 @@ component Keyboard
 		DataReady : out std_logic ;  -- data output enable signal
 		Output : out std_logic_vector(7 downto 0) -- scan code signal output
 	);
-end component; -- Keyboard
+end component; -- KeyboardAdapter
 
 component VGAdapter
 	port (
@@ -880,7 +880,7 @@ begin
 		FlashData => FlashData
 	);
 
-	Keyboard_c : Keyboard port map (
+	KeyboardAdapter_c : KeyboardAdapter port map (
 		PS2Data => PS2KeybardData,
 		PS2Clock => PS2KeybardClock,
 		Clock => Clock,

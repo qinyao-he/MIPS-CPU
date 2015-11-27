@@ -538,7 +538,7 @@ begin
 		CLKFX_OUT => MultiClock
 	);
 
-	StdClock <= MultiClock when SW(14) = '1' else OriginClock;
+	StdClock <= MultiClock when SW(14) = '1' else Clock_50;
 	Clock <= StdClock when SW(15) = '1' else Clock_M;
 	Reset <= not Rst;
 

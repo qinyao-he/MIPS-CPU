@@ -64,7 +64,12 @@ entity IOBridge is
 
 		KeyboardDATA_READY : in std_logic;
 		KeyboardRDN : out std_logic;
-		KeyboardData : in std_logic_vector(7 downto 0)
+		KeyboardData : in std_logic_vector(7 downto 0);
+
+		VGAAddress : out std_logic_vector(10 downto 0);
+		VGAData : out std_logic_vector(7 downto 0);
+		VGAWE : out std_logic_vector(0 downto 0);
+		VGAUpdate : out std_logic_vector(1 downto 0)
 	);
 end IOBridge;
 
@@ -86,6 +91,7 @@ begin
 	DataOutput2 <= BufferData2;
 
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_WRITE) else
+				'1' when (Address2=x"BF01" and state=DATA_WRITE) else
 				not WriteEN when state=DATA_WRITE else
 				'1';
 	MemoryOE <= not ReadEN when state=DATA_READ else
@@ -98,14 +104,20 @@ begin
 					'1';
 	MemoryDataBus <= DataInput2 when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
+	VGAData <= DataInput2(7 downto 0);
 
 	MemoryAddress <= "00" & Address1 when state=INS_READ else
 					"00" & Address2;
+	VGAAddress <= Address2(10 downto 0);
 
 	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
 	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_WRITE) else '1';
 
 	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_READ) else '1';
+
+	VGAWE <= "1" when (WriteEN='1' and (state=DATA_WRITE or state=INIT) and (Address2(15 downto 11)="11111"))
+		else "0";
+	VGAUpdate <= "00";
 
 	BF01 <= "00000000000000" & SerialDATA_READY & (SerialTSRE and SerialTBRE);
 	BF03 <= "000000000000000" & KeyboardDATA_READY;

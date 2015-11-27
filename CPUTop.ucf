@@ -108,7 +108,20 @@ NET "Clock_M" LOC = U9;
 
 NET "Clock_11" LOC = B8;
 
-# PlanAhead Generated physical constraints
 
 NET "PS2KeybardClock" LOC = U6;
 NET "PS2KeybardData" LOC = V6;
+
+# PlanAhead Generated physical constraints 
+
+NET "VGA_B[2]" LOC = B6;
+NET "VGA_B[1]" LOC = A6;
+NET "VGA_B[0]" LOC = D5;
+NET "VGA_G[2]" LOC = C5;
+NET "VGA_G[1]" LOC = C4;
+NET "VGA_G[0]" LOC = B4;
+NET "VGA_R[2]" LOC = A4;
+NET "VGA_R[1]" LOC = C3;
+NET "VGA_R[0]" LOC = A7;
+NET "VGA_HS" LOC = D6;
+NET "VGA_VS" LOC = E6;

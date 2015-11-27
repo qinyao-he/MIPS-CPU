@@ -54,6 +54,12 @@ entity CPUTop is
 		PS2KeybardClock : in std_logic;
 		PS2KeybardData : in std_logic;
 
+		VGA_R : out std_logic_vector(2 downto 0);
+		VGA_G : out std_logic_vector(2 downto 0);
+		VGA_B : out std_logic_vector(2 downto 0);
+		VGA_HS : out std_logic;
+		VGA_VS : out std_logic;
+
 		SW : in std_logic_vector(15 downto 0);
 		LED : out std_logic_vector (15 downto 0);
 		DYP0 : out std_logic_vector (6 downto 0);
@@ -273,7 +279,12 @@ component IOBridge
 
 		KeyboardDATA_READY : in std_logic;
 		KeyboardRDN : out std_logic;
-		KeyboardData : in std_logic_vector(7 downto 0)
+		KeyboardData : in std_logic_vector(7 downto 0);
+
+		VGAAddress : out std_logic_vector(10 downto 0);
+		VGAData : out std_logic_vector(7 downto 0);
+		VGAWE : out std_logic_vector(0 downto 0);
+		VGAUpdate : out std_logic_vector(1 downto 0)
 	);
 end component; -- IOBridge
 
@@ -375,6 +386,21 @@ component Keyboard
 		Output : out std_logic_vector(7 downto 0) -- scan code signal output
 	);
 end component; -- Keyboard
+
+component VGAdapter
+	port (
+		CLKout : in std_logic;
+		CLKin : in std_logic;
+		Reset : in  std_logic;
+		hs,vs : out std_logic;
+		r,g,b : out std_logic_vector(2 downto 0);
+		CharWea : in std_logic_vector( 0 downto 0);
+		CharAddra : in std_logic_vector(10 downto 0);
+		CharDina : in std_logic_vector(7 downto 0);
+		CharDouta : out std_logic_vector(7 downto 0);
+		UpdateType : in std_logic_vector(1 downto 0)
+	);
+end component;
 
 COMPONENT ClockMultiplier
 	PORT(
@@ -494,6 +520,11 @@ signal IOBridgeRAM1EN : std_logic;
 signal KeyboardDataReady : std_logic;
 signal KeyboardDataReceive : std_logic;
 signal KeyboardOutput : std_logic_vector(7 downto 0);
+
+signal VGAAddress : std_logic_vector(10 downto 0);
+signal VGAData : std_logic_vector(7 downto 0);
+signal VGAUpdate : std_logic_vector(1 downto 0);
+signal VGAWE : std_logic_vector(0 downto 0);
 
 signal key_0, key_1 : std_logic_vector(3 downto 0);
 
@@ -814,7 +845,12 @@ begin
 
 		KeyboardDATA_READY => KeyboardDataReady,
 		KeyboardRDN => KeyboardDataReceive,
-		KeyboardData => KeyboardOutput
+		KeyboardData => KeyboardOutput,
+
+		VGAAddress => VGAAddress,
+		VGAData => VGAData,
+		VGAWE => VGAWE,
+		VGAUpdate => VGAUpdate
 	);
 
 	Keyboard_c : Keyboard port map (
@@ -825,6 +861,22 @@ begin
 		DataReceive => KeyboardDataReceive,
 		DataReady => KeyboardDataReady,
 		Output => KeyboardOutput
+	);
+
+	VGAdapter_c : VGAdapter port map (
+		CLKin => Clock_50,
+		CLKout => Clock,
+		Reset => Rst,
+		hs => VGA_HS,
+		vs => VGA_VS,
+		r => VGA_R,
+		g => VGA_G,
+		b => VGA_B,
+		CharWea => VGAWE,
+		CharAddra => VGAAddress,
+		CharDina => VGAData,
+		CharDouta => open,
+		UpdateType => VGAUpdate
 	);
 
 end Behavioral;

@@ -31,7 +31,8 @@ use ieee.std_logic_1164.all;
 
 entity VGAdapter is
 	port(
-		CLK : in std_logic;
+		CLKout : in std_logic;
+		CLKin : in std_logic;
 		Reset : in  std_logic;
 		hs,vs : out std_logic;
 		r,g,b : out std_logic_vector(2 downto 0);
@@ -48,7 +49,8 @@ end VGAdapter;
 architecture Behavioral of VGAdapter is
 	component CharAdapter is
 		port(
-			CLK : in std_logic;
+			CLKout : in std_logic;
+			CLKin : in std_logic;
 			Reset : in  std_logic;
 			EN : in std_logic;
 			-- CharBufferA
@@ -78,7 +80,8 @@ architecture Behavioral of VGAdapter is
 	signal CharAdapterEN : std_logic;
 begin
 	CharAdapter_c : CharAdapter port map(
-		CLK => CLK,
+		CLKout => CLKout,
+		CLKin => CLKin,
 		Reset => Reset,
 		CharAddra => CharAddra,
 		CharDina => CharDina,
@@ -92,7 +95,7 @@ begin
 		);
 	VGACore_c: VGACore port map(
 		reset => Reset,
-		clk_0 => CLK,
+		clk_0 => CLKin,
 		hs => hs,
 		vs => vs,
 		r => r,

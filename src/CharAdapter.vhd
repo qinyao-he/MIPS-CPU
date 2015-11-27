@@ -33,7 +33,8 @@ use ieee.std_logic_arith.all;
 
 entity CharAdapter is
 	port(
-		CLK : in std_logic;
+		CLKout : in std_logic;
+		CLKin : in std_logic;
 		Reset : in  std_logic;
 		EN : in std_logic;
 		-- CharBufferA
@@ -86,8 +87,8 @@ architecture Behavioral of CharAdapter is
 	--signal debugGramDina:std_logic_vector(15 downto 0);
 begin
 	CharBuffer_c : CharBuffer port map(
-		clka => CLK,
-		clkb => CLK,
+		clka => CLKout,
+		clkb => CLKin,
 		wea => CharWea,
 		addra => CharAddra,
 		dina => CharDina,
@@ -98,7 +99,7 @@ begin
 		doutb => CharDoutb_in
 	);
 	Letters_c : Letters port map(
-		clka => CLK,
+		clka => CLKin,
 		addra => LettersAddr,
 		douta => LettersDout
 	);
@@ -112,7 +113,7 @@ begin
 	--		EXT(debugGramDina,LED'length) when SW = "0000000000000110";
 	-- read CharBuffer and exchange it to GRam
 	--process( CLK, Reset, EN )
-	process( CLK, Reset, EN )
+	process( CLKin, Reset, EN )
 	variable RowNum : integer range 0 to 39 := 0;
 	variable LineNum : integer range 0 to 29 := 0;
 	variable num : integer range 0 to 15 := 0;
@@ -123,7 +124,7 @@ begin
 				LineNumOfChar <= (others => '0');
 				CharAddrb_in <= (others => '0');
 				state <= INIT;
-			elsif rising_edge(CLK) then
+			elsif rising_edge(CLKin) then
 				case state is
 					when INIT =>
 						Char <= CharDoutb_in;

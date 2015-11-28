@@ -107,7 +107,7 @@ architecture Behavioral of IOBridge is
 		);
 	end component;
 
-	type STATE_TYPE is (BOOT, BOOT_START, BOOT_FLASH, BOOT_RAM, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ, HOLD);
+	type STATE_TYPE is (BOOT, BOOT_START, BOOT_FLASH, BOOT_RAM, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -153,7 +153,7 @@ begin
 	DataOutput1 <= MemoryDataBus;
 	DataOutput2 <= BufferData2;
 
-	CPUClock <= '0' when (state=INS_READ or state=HOLD) else '1';
+	CPUClock <= '0' when state=INS_READ else '1';
 
 
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_RW) else
@@ -164,7 +164,7 @@ begin
 				'0' when state=BOOT_RAM else
 				'1';
 	MemoryOE <= not ReadEN when state=DATA_RW else
-				'0' when (state=INS_READ or state=HOLD) else
+				'0' when state=INS_READ else
 				'1';
 
 	MemoryBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
@@ -178,7 +178,7 @@ begin
 	VGAData <= DataInput2(7 downto 0);
 
 	MemoryAddress <= "00" & FlashBootMemAddr when (state=BOOT_FLASH or state=BOOT_RAM) else
-					"00" & Address1 when (state=INS_READ or state=HOLD) else
+					"00" & Address1 when state=INS_READ else
 					"00" & Address2;
 	VGAAddress <= Address2(10 downto 0);
 
@@ -256,8 +256,6 @@ begin
 				when INS_READ =>
 					state <= DATA_PRE;
 					BufferData1 <= MemoryDataBus;
-				when HOLD =>
-					state <= DATA_PRE;
 				when others =>
 					state <= BOOT;
 			end case;

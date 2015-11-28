@@ -103,7 +103,7 @@ architecture Behavioral of IOBridge is
 		);
 	end component;
 
-	type STATE_TYPE is (INS_READ, DATA_READ, DATA_WRITE, HOLD);
+	type STATE_TYPE is (DATA_PRE, DATA_RW, INS_READ, HOLD);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -119,22 +119,22 @@ begin
 	DataOutput1 <= BufferData1;
 	DataOutput2 <= BufferData2;
 
-	CPUClock <= '0' when (state=DATA_WRITE or state=HOLD) else
+	CPUClock <= '0' when (state=INS_READ or state=HOLD) else
 				'1';
 
-	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_WRITE) else
-				'1' when (Address2=x"BF01" and state=DATA_WRITE) else
-				'1' when (Address2=x"BF02" and state=DATA_WRITE) else
-				'1' when (Address2=x"BF03" and state=DATA_WRITE) else
-				not WriteEN when state=DATA_WRITE else
+	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_RW) else
+				'1' when (Address2=x"BF01" and state=DATA_RW) else
+				'1' when (Address2=x"BF02" and state=DATA_RW) else
+				'1' when (Address2=x"BF03" and state=DATA_RW) else
+				not WriteEN when state=DATA_RW else
 				'1';
-	MemoryOE <= not ReadEN when state=DATA_READ else
+	MemoryOE <= not ReadEN when state=DATA_RW else
 				'0' when state=INS_READ else
 				'1';
 
-	MemoryBusFlag <= not WriteEN when (state=DATA_READ or state=DATA_WRITE) else
+	MemoryBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
 					'1';
-	SerialBusFlag <= not WriteEN when (state=DATA_READ or state=DATA_WRITE) else
+	SerialBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
 					'1';
 	MemoryDataBus <= DataInput2 when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
@@ -144,12 +144,12 @@ begin
 					"00" & Address2;
 	VGAAddress <= Address2(10 downto 0);
 
-	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_READ) else '1';
-	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_WRITE) else '1';
+	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_RW) else '1';
+	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_RW) else '1';
 
-	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_READ) else '1';
+	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_RW) else '1';
 
-	VGAWE <= "1" when (WriteEN='1' and (state=DATA_WRITE or state=DATA_READ) and (Address2(15 downto 11)="11111"))
+	VGAWE <= "1" when (WriteEN='1' and state=DATA_RW and (Address2(15 downto 11)="11111"))
 		else "0";
 	VGAUpdate <= "00";
 
@@ -162,11 +162,10 @@ begin
 			state <= INS_READ;
 		elsif falling_edge(Clock) then
 			case state is
-				when INS_READ =>
-					state <= DATA_READ;
-					BufferData1 <= MemoryDataBus;
-				when DATA_READ =>
-					state <= DATA_WRITE;
+				when DATA_PRE =>
+					state <= DATA_RW;
+				when DATA_RW =>
+					state <= INS_READ;
 					case Address2 is
 						when x"BF00" =>
 							BufferData2 <= "00000000" & SerialDataBus;
@@ -179,12 +178,13 @@ begin
 						when others =>
 							BufferData2 <= MemoryDataBus;
 					end case;
-				when DATA_WRITE =>
+				when INS_READ =>
 					state <= HOLD;
+					BufferData1 <= MemoryDataBus;
 				when HOLD =>
-					state <= INS_READ;
+					state <= DATA_PRE;
 				when others =>
-					state <= INS_READ;
+					state <= DATA_PRE;
 			end case;
 		end if;
 	end process;

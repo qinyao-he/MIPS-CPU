@@ -182,7 +182,7 @@ begin
 					"00" & Address2;
 	VGAAddress <= Address2(10 downto 0);
 
-	SerialRDN <= not ReadEN when (Address2=x"BF00" and state=DATA_RW) else '1';
+	SerialRDN <= not ReadEN when (Address2=x"BF00" and (state=DATA_PRE or state=DATA_RW)) else '1';
 	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_RW) else '1';
 
 	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_RW) else '1';

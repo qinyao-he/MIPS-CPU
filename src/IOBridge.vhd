@@ -103,7 +103,7 @@ architecture Behavioral of IOBridge is
 		);
 	end component;
 
-	type STATE_TYPE is (DATA_PRE, DATA_RW, INS_READ, HOLD);
+	type STATE_TYPE is (BOOT, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ, HOLD);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -159,9 +159,13 @@ begin
 	process (Clock, Reset)
 	begin
 		if Reset = '1' then
-			state <= INS_READ;
+			state <= BOOT_COMPLETE;
 		elsif falling_edge(Clock) then
 			case state is
+				when BOOT =>
+					state <= BOOT;
+				when BOOT_COMPLETE =>
+					state <= DATA_PRE;
 				when DATA_PRE =>
 					state <= DATA_RW;
 				when DATA_RW =>
@@ -184,7 +188,7 @@ begin
 				when HOLD =>
 					state <= DATA_PRE;
 				when others =>
-					state <= DATA_PRE;
+					state <= BOOT;
 			end case;
 		end if;
 	end process;

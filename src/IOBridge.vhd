@@ -150,7 +150,7 @@ begin
 	MemoryEN <= '0';
 	RAM1EN <= '1';
 
-	DataOutput1 <= BufferData1;
+	DataOutput1 <= MemoryDataBus;
 	DataOutput2 <= BufferData2;
 
 	CPUClock <= '0' when (state=INS_READ or state=HOLD) else '1';
@@ -164,7 +164,7 @@ begin
 				'0' when state=BOOT_RAM else
 				'1';
 	MemoryOE <= not ReadEN when state=DATA_RW else
-				'0' when state=INS_READ else
+				'0' when (state=INS_READ or state=HOLD) else
 				'1';
 
 	MemoryBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
@@ -178,7 +178,7 @@ begin
 	VGAData <= DataInput2(7 downto 0);
 
 	MemoryAddress <= "00" & FlashBootMemAddr when (state=BOOT_FLASH or state=BOOT_RAM) else
-					"00" & Address1 when state=INS_READ else
+					"00" & Address1 when (state=INS_READ or state=HOLD) else
 					"00" & Address2;
 	VGAAddress <= Address2(10 downto 0);
 
@@ -254,7 +254,7 @@ begin
 							BufferData2 <= MemoryDataBus;
 					end case;
 				when INS_READ =>
-					state <= HOLD;
+					state <= DATA_PRE;
 					BufferData1 <= MemoryDataBus;
 				when HOLD =>
 					state <= DATA_PRE;

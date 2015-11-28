@@ -103,7 +103,7 @@ architecture Behavioral of IOBridge is
 		);
 	end component;
 
-	type STATE_TYPE is (DATA_INIT, DATA_WRITE, DATA_READ, INS_READ);
+	type STATE_TYPE is (INS_READ, DATA_READ, DATA_WRITE, HOLD);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -119,17 +119,22 @@ begin
 	DataOutput1 <= BufferData1;
 	DataOutput2 <= BufferData2;
 
+	CPUClock <= '0' when (state=DATA_WRITE or state=HOLD) else
+				'1';
+
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_WRITE) else
 				'1' when (Address2=x"BF01" and state=DATA_WRITE) else
+				'1' when (Address2=x"BF02" and state=DATA_WRITE) else
+				'1' when (Address2=x"BF03" and state=DATA_WRITE) else
 				not WriteEN when state=DATA_WRITE else
 				'1';
 	MemoryOE <= not ReadEN when state=DATA_READ else
 				'0' when state=INS_READ else
 				'1';
 
-	MemoryBusFlag <= not WriteEN when (state=DATA_INIT or state=DATA_WRITE) else
+	MemoryBusFlag <= not WriteEN when (state=DATA_READ or state=DATA_WRITE) else
 					'1';
-	SerialBusFlag <= not WriteEN when (state=DATA_INIT or state=DATA_WRITE) else
+	SerialBusFlag <= not WriteEN when (state=DATA_READ or state=DATA_WRITE) else
 					'1';
 	MemoryDataBus <= DataInput2 when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
@@ -144,7 +149,7 @@ begin
 
 	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_READ) else '1';
 
-	VGAWE <= "1" when (WriteEN='1' and (state=DATA_WRITE or state=DATA_INIT) and (Address2(15 downto 11)="11111"))
+	VGAWE <= "1" when (WriteEN='1' and (state=DATA_WRITE or state=DATA_READ) and (Address2(15 downto 11)="11111"))
 		else "0";
 	VGAUpdate <= "00";
 
@@ -154,15 +159,14 @@ begin
 	process (Clock, Reset)
 	begin
 		if Reset = '1' then
-			state <= DATA_INIT;
+			state <= INS_READ;
 		elsif falling_edge(Clock) then
 			case state is
-				when DATA_INIT =>
-					state <= DATA_WRITE;
-				when DATA_WRITE =>
+				when INS_READ =>
 					state <= DATA_READ;
+					BufferData1 <= MemoryDataBus;
 				when DATA_READ =>
-					state <= INS_READ;
+					state <= DATA_WRITE;
 					case Address2 is
 						when x"BF00" =>
 							BufferData2 <= "00000000" & SerialDataBus;
@@ -175,24 +179,13 @@ begin
 						when others =>
 							BufferData2 <= MemoryDataBus;
 					end case;
-				when INS_READ =>
-					state <= DATA_INIT;
-					BufferData1 <= MemoryDataBus;
+				when DATA_WRITE =>
+					state <= HOLD;
+				when HOLD =>
+					state <= INS_READ;
 				when others =>
-					state <= DATA_INIT;
+					state <= INS_READ;
 			end case;
-		end if;
-	end process;
-
-	process (Clock, Reset)
-		variable cnt : std_logic_vector(1 downto 0) := "00";
-	begin
-		if Reset = '1' then
-			cnt := "00";
-			CPUClock <= '1';
-		elsif rising_edge(Clock) then
-			CPUClock <= not cnt(1);
-			cnt := cnt + 1;
 		end if;
 	end process;
 

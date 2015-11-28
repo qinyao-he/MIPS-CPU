@@ -97,7 +97,7 @@ begin
 					state <= INIT;
 			end case;
 		end if;
-	end;
+	end process;
 
 end Behavioral;
 

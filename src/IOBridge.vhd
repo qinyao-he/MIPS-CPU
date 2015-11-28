@@ -170,8 +170,7 @@ begin
 	MemoryBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
 					'0' when (state=BOOT_RAM or state=BOOT_FLASH) else
 					'1';
-	SerialBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
-					'1';
+	SerialBusFlag <= not WriteEN;
 	MemoryBusHolder <= FlashReadData when (state=BOOT_FLASH or state=BOOT_RAM) else DataInput2;
 	MemoryDataBus <= MemoryBusHolder when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
@@ -183,7 +182,7 @@ begin
 	VGAAddress <= Address2(10 downto 0);
 
 	SerialRDN <= not ReadEN when (Address2=x"BF00" and (state=DATA_PRE or state=DATA_RW)) else '1';
-	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_RW) else '1';
+	SerialWRN <= not WriteEN when (Address2=x"BF00" and (state=DATA_PRE or state=DATA_RW)) else '1';
 
 	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_RW) else '1';
 

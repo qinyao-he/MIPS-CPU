@@ -236,14 +236,14 @@ signal key_0, key_1 : std_logic_vector(3 downto 0);
 begin
 
 	Inst_ClockMultiplier: ClockMultiplier PORT MAP(
-		CLKIN_IN => Clock_11,
+		CLKIN_IN => Clock_50,
 		RST_IN => Reset,
 		CLK0_OUT => OriginClock,
 		CLK2X_OUT => DoubleClock,
 		CLKFX_OUT => MultiClock
 	);
 
-	StdClock <= MultiClock when SW(14) = '1' else Clock_50;
+	StdClock <= MultiClock when SW(14) = '1' else OriginClock;
 	Clock <= StdClock when SW(15) = '1' else Clock_M;
 	Reset <= not Rst;
 
@@ -337,7 +337,7 @@ begin
 	);
 
 	VGAdapter_c : VGAdapter port map (
-		CLKin => Clock_50,
+		CLKin => OriginClock,
 		CLKout => Clock,
 		Reset => Rst,
 		hs => VGA_HS,

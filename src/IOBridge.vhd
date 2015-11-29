@@ -237,7 +237,11 @@ begin
 				when BOOT_COMPLETE =>
 					state <= DATA_PRE;
 				when DATA_PRE =>
-					state <= DATA_RW;
+					if ReadEN='1' or WriteEN='1' then
+						state <= DATA_RW;
+					else
+						state <= INS_READ;
+					end if;
 				when DATA_RW =>
 					state <= INS_READ;
 					case Address2 is

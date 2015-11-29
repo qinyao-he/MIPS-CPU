@@ -30,11 +30,13 @@ use ieee.std_logic_1164.all;
 --use UNISIM.VComponents.all;
 
 entity BranchSelector is
-    Port (BranchType : in  std_logic_vector (1 downto 0);
-			Jump : in  std_logic;
-			Input : in  std_logic_vector (15 downto 0);
-			BranchSelect : out  std_logic_vector (1 downto 0);
-			IFIDClear : out std_logic);
+    Port (
+    	BranchType : in  std_logic_vector (1 downto 0);
+		Jump : in  std_logic;
+		Input : in  std_logic_vector (15 downto 0);
+		BranchSelect : out  std_logic_vector (1 downto 0);
+		BranchHappen : out std_logic
+	);
 end BranchSelector;
 
 architecture Behavioral of BranchSelector is
@@ -44,7 +46,7 @@ begin
 	BranchSelectTemp	<= 	"01" when (BranchType = "01" and Jump = '0') or (Input = "0000000000000000" and BranchType = "10" and Jump = '0') or (Input /= "0000000000000000" and BranchType = "11" and Jump = '0')else
 							"10" when Jump = '1' else
 							"00"; 
-	IFIDClear <= '1' when BranchSelectTemp /= "00" else
+	BranchHappen <= '1' when BranchSelectTemp /= "00" else
 				 '0';
 end Behavioral;
 

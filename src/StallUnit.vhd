@@ -67,8 +67,8 @@ begin
 					'1';
 
 	PCClear <= '0';
-	IFIDClear <= '1' when Branch else '0';
-	IDEXClear <= '1' when Hazard else '0';
+	IFIDClear <= '1' when Branch='1' else '0';
+	IDEXClear <= '1' when Hazard='1' else '0';
 	EXMEMClear <= '0';
 	MEMWBClear <= '0';
 

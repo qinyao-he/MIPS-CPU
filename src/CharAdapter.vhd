@@ -45,7 +45,7 @@ entity CharAdapter is
 		-- GRam
 		GRamAddra : out std_logic_vector(14 downto 0);
 		GRamDina : out std_logic_vector(15 downto 0)
-		--LED : out std_logic_vector(15 downto 0);
+		--LED : out std_logic_vector(15 downto 0)
 		--SW : in std_logic_vector(15 downto 0)
 	  );
 end CharAdapter;
@@ -85,10 +85,11 @@ architecture Behavioral of CharAdapter is
 	signal Second : std_logic;
 	--signal CharDouta : std_logic_vector(7 downto 0);
 	--state
-	type STATE_TYPE is (RST, INIT, CHARA, GRAMAD, FINISH);
+	type STATE_TYPE is (RST, INIT, INIT2, CHARA, GRAMAD, FINISH);
 	signal state : STATE_TYPE;
 	--signal debugGramAddr:std_logic_vector(14 downto 0);
 	--signal debugGramDina:std_logic_vector(15 downto 0);
+	--signal debugChar : std_logic_vector(7 downto 0);
 begin
 	LetterDoutReverse(0) <= LettersDout(15);
 	LetterDoutReverse(1) <= LettersDout(14);
@@ -138,11 +139,13 @@ begin
 	--		EXT(debugGramDina,LED'length) when SW = "0000000000000110";
 	-- read CharBuffer and exchange it to GRam
 	--process( CLK, Reset, EN )
+	--LED <= EXT(debugChar,LED'length);
 	process( CLKin, Reset, EN )
 	variable RowNum : integer range 0 to 39 := 0;
 	variable LineNum : integer range 0 to 29 := 0;
 	variable num : integer range 0 to 15 := 0;
 	variable result : integer range 0 to 19200;
+	--variable first : std_logic := '0';
 	begin
 		if EN = '1' then
 			if Reset = '0' then
@@ -152,13 +155,20 @@ begin
 			elsif rising_edge(CLKin) then
 				case state is
 					when RST =>
-						LineNumOfChar <= (others => '0');
-						CharAddrb_in <= (others => '0');
+						CharAddrb_in <= CharAddrb_in+1;
 						state <= INIT;
 					when INIT =>
+						state <= INIT2;
+					when INIT2 =>
 						TempChar <= CharDoutb_in;
 						state <= CHARA;
 					when CHARA =>
+						--if first = '0' then
+						--	first := '1';
+						--	debugChar <= Char;
+						--else
+						--	debugChar <= debugChar;
+						--end if ;
 						GRamDina <= LettersResult;
 						result := (LineNum*16+num)*40+RowNum;
 						GRamAddra <= CONV_STD_LOGIC_VECTOR(result, 15);

@@ -51,10 +51,10 @@ begin
 		X"2D" when Data = X"4E" else  -- -
 		X"3D" when Data = X"55" else  -- =
 		X"5C" when Data = X"5D" else  -- \
-	--<= "50" when Data = X"66" else  -- BKSP
+		X"08" when Data = X"66" else  -- BKSP
 		X"20" when Data = X"29" else  -- SPACE
 		X"09" when Data = X"0D" else  -- TAB
-	--<= "50" when Data = X"58" else  -- CAPS
+		X"25" when Data = X"58" else  -- CAPS
 		X"00" when Data = X"12" else  -- L SHFT
 		X"01" when Data = X"14" else  -- L CTRL
 	--<= "" when Data = "" else  -- L GUI
@@ -65,7 +65,7 @@ begin
 	--<= "" when Data = "" else  -- R ALT
 	--<= "" when Data = "" else  -- APPS
 		X"12" when Data = X"5A" else  -- ENTER
-	--<= "50" when Data = X"76" else  -- ESC
+		X"1B" when Data = X"76" else  -- ESC
 	--<= "50" when Data = X"05" else  -- F1
 	--<= "50" when Data = X"06" else  -- F2
 	--<= "50" when Data = X"04" else  -- F3
@@ -88,10 +88,10 @@ begin
 	--<= "" when Data = "" else  -- DELETE
 	--<= "" when Data = "" else  -- END
 	--<= "" when Data = "" else  -- PG DN
-		X"10" when Data = X"75" else  -- U ARROW
-		X"11" when Data = X"6B" else  -- L ARROW
-		X"12" when Data = X"72" else  -- D ARROW
-		X"13" when Data = X"74" else  -- R ARROW
+		X"21" when Data = X"75" else  -- U ARROW
+		X"22" when Data = X"6B" else  -- L ARROW
+		X"23" when Data = X"72" else  -- D ARROW
+		X"24" when Data = X"74" else  -- R ARROW
 	--<= "50" when Data = X"77" else  -- NUM
 	--<= "50" when Data = X"4A" else  -- KP/
 	--<= "50" when Data = X"7C" else  -- KP*

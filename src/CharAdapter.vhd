@@ -78,8 +78,11 @@ architecture Behavioral of CharAdapter is
 	signal LettersAddr : std_logic_vector(11 downto 0);
 	signal LettersDout : std_logic_vector(15 downto 0);
 	signal LetterDoutReverse : std_logic_vector(15 downto 0);
+	signal LettersResult : std_logic_vector(15 downto 0);
 	signal LineNumOfChar : std_logic_vector(3 downto 0);
 	signal Char : std_logic_vector(7 downto 0);
+	signal TempChar : std_logic_vector(7 downto 0);
+	signal Second : std_logic;
 	--signal CharDouta : std_logic_vector(7 downto 0);
 	--state
 	type STATE_TYPE is (INIT, CHARA, GRAMAD, FINISH);
@@ -120,6 +123,11 @@ begin
 		addra => LettersAddr,
 		douta => LettersDout
 	);
+	Char <= TempChar when TempChar(7) = '0' else
+			not TempChar;
+	LettersResult <=not LetterDoutReverse when Second = '1' and TempChar(7) = '1'else
+						LetterDoutReverse;
+
 	LettersAddr <= Char(7 downto 0) & LineNumOfChar;
 	--LED <=	EXT(LettersDout,LED'length) when SW = "0000000000000000" else
 	--		EXT(LettersAddr,LED'length) when SW = "0000000000000001" else
@@ -144,10 +152,10 @@ begin
 			elsif rising_edge(CLKin) then
 				case state is
 					when INIT =>
-						Char <= CharDoutb_in;
+						TempChar <= CharDoutb_in;
 						state <= CHARA;
 					when CHARA =>
-						GRamDina <= LetterDoutReverse;
+						GRamDina <= LettersResult;
 						result := (LineNum*16+num)*40+RowNum;
 						GRamAddra <= CONV_STD_LOGIC_VECTOR(result, 15);
 						--debugGramAddr <= CONV_STD_LOGIC_VECTOR(result, 15);
@@ -186,5 +194,16 @@ begin
 		end if ;
 	end process ;
 
+	process( CLKin )
+	variable counter : integer range 0 to 25000002 := 0;
+	begin
+		if rising_edge(CLKin) then
+			counter := counter + 1;
+			if counter = 25000000 then
+				counter := 0;
+				Second <= not Second;
+			end if ;
+		end if ;
+	end process ;
 end Behavioral;
 

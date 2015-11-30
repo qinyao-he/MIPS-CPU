@@ -85,7 +85,7 @@ architecture Behavioral of CharAdapter is
 	signal Second : std_logic;
 	--signal CharDouta : std_logic_vector(7 downto 0);
 	--state
-	type STATE_TYPE is (INIT, CHARA, GRAMAD, FINISH);
+	type STATE_TYPE is (RST, INIT, CHARA, GRAMAD, FINISH);
 	signal state : STATE_TYPE;
 	--signal debugGramAddr:std_logic_vector(14 downto 0);
 	--signal debugGramDina:std_logic_vector(15 downto 0);
@@ -148,9 +148,13 @@ begin
 			if Reset = '0' then
 				LineNumOfChar <= (others => '0');
 				CharAddrb_in <= (others => '0');
-				state <= INIT;
+				state <= RST;
 			elsif rising_edge(CLKin) then
 				case state is
+					when RST =>
+						LineNumOfChar <= (others => '0');
+						CharAddrb_in <= (others => '0');
+						state <= INIT;
 					when INIT =>
 						TempChar <= CharDoutb_in;
 						state <= CHARA;

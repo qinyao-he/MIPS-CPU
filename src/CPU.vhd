@@ -85,7 +85,7 @@ component BranchSelector
 		Jump : in  std_logic;
 		Input : in  std_logic_vector (15 downto 0);
 		BranchSelect : out  std_logic_vector (1 downto 0);
-		IFIDClear : out std_logic
+		BranchHappen : out std_logic
 	);
 end component; -- BranchSelector
 
@@ -156,9 +156,7 @@ component HazardUnit
 		IDEXRegDest : in std_logic_vector (3 downto 0);
 		RegSrcA : in std_logic_vector (3 downto 0);
 		RegSrcB : in std_logic_vector (3 downto 0);
-		PCWrite : out std_logic;
-		IFIDWrite : out std_logic;
-		IDEXClear : out std_logic
+		HazardHappen : out std_logic
 	);
 end component; -- HazardUnit
 
@@ -309,6 +307,26 @@ component TSelector
 	);
 end component;
 
+component StallUnit
+	port (
+		Branch : in std_logic;
+		Hazard : in std_logic;
+		Stall : in std_logic;
+
+		PCWriteEN : out std_logic;
+		IFIDWriteEN : out std_logic;
+		IDEXWriteEN : out std_logic;
+		EXMEMWriteEN : out std_logic;
+		MEMWBWriteEN : out std_logic;
+
+		PCClear : out std_logic;
+		IFIDClear : out std_logic;
+		IDEXClear : out std_logic;
+		EXMEMClear : out std_logic;
+		MEMWBClear : out std_logic
+	);
+end component;
+
 -- signal
 
 -- IF
@@ -391,6 +409,22 @@ signal IDEXRegDataAOutput : std_logic_vector (15 downto 0);
 signal IDEXRegDataBOutput : std_logic_vector (15 downto 0);
 signal IDEXExtenedNumberOutput : std_logic_vector (15 downto 0);
 
+-- Stall
+signal PCWriteEN : std_logic;
+signal IFIDWriteEN : std_logic;
+signal IDEXWriteEN : std_logic;
+signal EXMEMWriteEN : std_logic;
+signal MEMWBWriteEN : std_logic;
+
+signal PCClear : std_logic;
+signal IFIDClear : std_logic;
+signal IDEXClear : std_logic;
+signal EXMEMClear : std_logic;
+signal MEMWBClear : std_logic;
+
+signal BranchHappen : std_logic;
+signal HazardHappen : std_logic;
+
 begin
 
 	InstAddress <= IFPCRegOutput;
@@ -436,8 +470,8 @@ begin
 	IFPCReg_c : PCReg port map (
 		Clock => Clock,
 		Reset => Reset,
-		Clear => '0',
-		WriteEN => HazardUnitPCWrite,
+		Clear => PCClear,
+		WriteEN => PCWriteEN,
 		Input => IFMuxT16Output,
 		Output => IFPCRegOutput
 	);
@@ -456,8 +490,8 @@ begin
 	IFIDReg_c : IFIDReg port map (
 		Clock => Clock,
 		Reset => Reset,
-		Clear => BranchSelectorIFIDClear,
-		WriteEN => HazardUnitIFIDWrite,
+		Clear => IFIDClear,
+		WriteEN => IFIDWriteEN,
 		InstructionInput => InstInput,
 		--InstructionInput => SWIn,
 		PCInput => IFAdder16Output_1,
@@ -511,16 +545,14 @@ begin
 		IDEXRegDest => IDEXRegDestOutput,
 		RegSrcA => IDControllerRegSrcA,
 		RegSrcB => IDControllerRegSrcB,
-		PCWrite => HazardUnitPCWrite,
-		IFIDWrite => HazardUnitIFIDWrite,
-		IDEXClear => HazardUnitIDEXClear
+		HazardHappen => HazardHappen
 	);
 	-- IDEX
 	IDEXReg_c : IDEXReg port map (
 		Clock => Clock,
 		Reset => Reset,
-		Clear => HazardUnitIDEXClear,
-		WriteEN => '1',
+		Clear => IDEXClear,
+		WriteEN => IDEXWriteEN,
 
 		PCInput => IFIDPCOutput,
 		TTypeInput => IDControllerTType,
@@ -562,8 +594,8 @@ begin
 	EXMEMReg_c : EXMEMReg port map (
 		Clock => Clock,
 		Reset => Reset,
-		Clear => '0',
-		WriteEN => '1',
+		Clear => EXMEMClear,
+		WriteEN => EXMEMWriteEN,
 		RegWriteInput => IDEXRegWriteOutput,
 		MemReadInput => IDEXMemReadOutput,
 		MemWriteInput => IDEXMemWriteOutput,
@@ -629,7 +661,7 @@ begin
 		Jump => IDEXJumpOutput,
 		Input => EXMuxT16_1Output,
 		BranchSelect => BranchSelectorBranchSelect,
-		IFIDClear => BranchSelectorIFIDClear
+		BranchHappen => BranchHappen
 	);
 	ForwardUnit_c : ForwardUnit port map (
 		EXMEMRegWrite => EXMEMRegWriteOutput,
@@ -644,8 +676,8 @@ begin
 	MEMWBReg_c : MEMWBReg port map (
 		Clock => Clock,
 		Reset => Reset,
-		Clear => '0',
-		WriteEN => '1',
+		Clear => MEMWBClear,
+		WriteEN => MEMWBWriteEN,
 
 		RegWriteInput => EXMEMRegWriteOutput,
 		MemToRegInput => EXMEMMemToRegOutput,
@@ -664,6 +696,24 @@ begin
 		InputA => MEMWBEXResultOutput,
 		InputB => MEMWBMemDataOutput,
 		Output => WBMux16Output
+	);
+
+	StallUnit_c : StallUnit port map (
+		Branch => BranchHappen,
+		Hazard => HazardHappen,
+		Stall => '0',
+
+		PCWriteEN => PCWriteEN,
+		IFIDWriteEN => IFIDWriteEN, 
+		IDEXWriteEN => IDEXWriteEN,
+		EXMEMWriteEN => EXMEMWriteEN,
+		MEMWBWriteEN => MEMWBWriteEN,
+
+		PCClear => PCClear,
+		IFIDClear => IFIDClear,
+		IDEXClear => IDEXClear,
+		EXMEMClear => EXMEMClear,
+		MEMWBClear => MEMWBClear
 	);
 
 end RTL;

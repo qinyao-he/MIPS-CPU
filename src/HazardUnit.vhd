@@ -35,19 +35,15 @@ entity HazardUnit is
 		IDEXRegDest : in std_logic_vector (3 downto 0);
 		RegSrcA : in std_logic_vector (3 downto 0);
 		RegSrcB: in std_logic_vector (3 downto 0);
-		PCWrite: out std_logic;
-		IFIDWrite : out std_logic;
-		IDEXClear : out std_logic);
+		
+		HazardHappen : out std_logic
+	);
 end HazardUnit;
 
 architecture Behavioral of HazardUnit is
 begin
-	PCWrite <= '0' when IDEXMemRead = '1' and (IDEXRegDest = RegSrcA or IDEXRegDest = RegSrcB) else
-			   '1';
-	IFIDWrite <= '0' when IDEXMemRead = '1' and (IDEXRegDest = RegSrcA or IDEXRegDest = RegSrcB) else
-				 '1';
-	IDEXClear <= '1' when IDEXMemRead = '1' and (IDEXRegDest = RegSrcA or IDEXRegDest = RegSrcB) else
-				 '0';
+
+	HazardHappen <= '1' when IDEXMemRead = '1' and (IDEXRegDest = RegSrcA or IDEXRegDest = RegSrcB) else '0';
 
 end Behavioral;
 

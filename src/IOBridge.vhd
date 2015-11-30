@@ -107,7 +107,7 @@ architecture Behavioral of IOBridge is
 		);
 	end component;
 
-	type STATE_TYPE is (BOOT, BOOT_START, BOOT_FLASH, BOOT_RAM, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ, HOLD);
+	type STATE_TYPE is (BOOT, BOOT_START, BOOT_FLASH, BOOT_RAM, BOOT_COMPLETE, DATA_PRE, DATA_RW, INS_READ);
 	signal state : STATE_TYPE;
 
 	signal BufferData1, BufferData2 : std_logic_vector(15 downto 0);
@@ -153,7 +153,7 @@ begin
 	DataOutput1 <= MemoryDataBus;
 	DataOutput2 <= BufferData2;
 
-	CPUClock <= '0' when (state=INS_READ or state=HOLD) else '1';
+	CPUClock <= '0' when state=INS_READ else '1';
 
 
 	MemoryWE <= '1' when (Address2=x"BF00" and state=DATA_RW) else
@@ -164,26 +164,25 @@ begin
 				'0' when state=BOOT_RAM else
 				'1';
 	MemoryOE <= not ReadEN when state=DATA_RW else
-				'0' when (state=INS_READ or state=HOLD) else
+				'0' when state=INS_READ else
 				'1';
 
 	MemoryBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
 					'0' when (state=BOOT_RAM or state=BOOT_FLASH) else
 					'1';
-	SerialBusFlag <= not WriteEN when (state=DATA_PRE or state=DATA_RW) else
-					'1';
+	SerialBusFlag <= not WriteEN;
 	MemoryBusHolder <= FlashReadData when (state=BOOT_FLASH or state=BOOT_RAM) else DataInput2;
 	MemoryDataBus <= MemoryBusHolder when MemoryBusFlag='0' else (others => 'Z');
 	SerialDataBus <= DataInput2(7 downto 0) when SerialBusFlag='0' else (others => 'Z');
 	VGAData <= DataInput2(7 downto 0);
 
 	MemoryAddress <= "00" & FlashBootMemAddr when (state=BOOT_FLASH or state=BOOT_RAM) else
-					"00" & Address1 when (state=INS_READ or state=HOLD) else
+					"00" & Address1 when state=INS_READ else
 					"00" & Address2;
 	VGAAddress <= Address2(10 downto 0);
 
 	SerialRDN <= not ReadEN when (Address2=x"BF00" and (state=DATA_PRE or state=DATA_RW)) else '1';
-	SerialWRN <= not WriteEN when (Address2=x"BF00" and state=DATA_RW) else '1';
+	SerialWRN <= not WriteEN when (Address2=x"BF00" and (state=INS_READ or state=DATA_RW)) else '1';
 
 	KeyboardRDN <= '0' when (Address2=x"BF02" and state=DATA_RW) else '1';
 
@@ -238,7 +237,11 @@ begin
 				when BOOT_COMPLETE =>
 					state <= DATA_PRE;
 				when DATA_PRE =>
-					state <= DATA_RW;
+					if ReadEN='1' or WriteEN='1' then
+						state <= DATA_RW;
+					else
+						state <= INS_READ;
+					end if;
 				when DATA_RW =>
 					state <= INS_READ;
 					case Address2 is
@@ -256,8 +259,6 @@ begin
 				when INS_READ =>
 					state <= DATA_PRE;
 					BufferData1 <= MemoryDataBus;
-				when HOLD =>
-					state <= DATA_PRE;
 				when others =>
 					state <= BOOT;
 			end case;

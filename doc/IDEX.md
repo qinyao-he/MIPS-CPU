@@ -14,7 +14,7 @@
 
 ### MemWrite
 
-### Instruction(15:0)
+### ALUOp(2:0)
 
 ### BranchType(1:0)
 

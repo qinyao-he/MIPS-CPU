@@ -7,9 +7,9 @@ Here we implement a full-featured computer system using VHDL on the THINKPAD exp
 ## Author
 We are three Junior Student of Department of Computer Science and Technology, Tsinghua University. This project is finished within three weeks.
 
-* **何钦尧** (He Qinyao), designer of the whole system architecture and do most of the coding and debuging work.
-* **王凯** (Wang Kai), implement the whole VGA interface, with an easy-to-integrate Graphical Card solution.
-* **黄科** (Huang Ke), implement keyboard interface and notepad program. Responsible for the integration work of each separate components.
+* [**何钦尧** (He Qinyao)](https://github.com/hqythu), designer of the whole system architecture and do most of the coding and debuging work.
+* [**王凯** (Wang Kai)](https://github.com/kaiwang13), implement the whole VGA interface, with an easy-to-integrate Graphical Card solution.
+* [**黄科** (Huang Ke)](https://github.com/spasserby), implement keyboard interface and notepad program. Responsible for the integration work of each separate components.
 
 ## Features
 This CPU support 30 instructions in THCO-MIPS instruction set (which is slightly modified on basis of MIPS16e). The whole set of instruction we support can be found in doc directory.
